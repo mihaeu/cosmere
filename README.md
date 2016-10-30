@@ -17,6 +17,8 @@ It's mandatory. It looks like:
 ```javascript
 {
   "baseUrl": "https://my.atlassian.net/wiki/rest/api",
+  "user": "my-user (Optional)",
+  "pass": "my-password (Optional)",
   "pages": [
     {
       "pageid": "37748761",
