@@ -10,7 +10,6 @@ You can safely install it as a global package:
 
 ```bash
 npm install -g md2confluence
-
 ```
 This will allow you to use the command ```md2confluence``` anywhere.
 
