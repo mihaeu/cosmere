@@ -1,6 +1,6 @@
 {
   "name": "md2confluence",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
@@ -24,7 +24,9 @@
   "keywords": [
     "confluence",
     "content confluence",
+    "update page confluence",
     "update confluence",
+    "readme to confluence",
     "page confluence",
     "markdown",
     "markdown wiki"
