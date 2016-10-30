@@ -31,6 +31,12 @@ It's mandatory. It looks like:
 __baseUrl__:
 it's the atlassian API url of confluence.
 
+__user__ (OPTIONAL):
+Your confluence username. If you don't set any it will be prompt it.
+
+__pass__ (OPTIONAL):
+Your confluence password. If you don't set any it will be prompt it.
+
 __pages__:
 A list of objects with the pages do you want to Update.
 
