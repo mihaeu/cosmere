@@ -5,11 +5,23 @@ Update confluence pages from your markdown files (like a README.md)
 
 ### Install the package
 
-Although you can use this package like any other package, it's intended to development environments and I recommend to install it as dev dependency:
+
+You can safely install it as a global package:
+
+```bash
+npm install -g md2confluence
+
+```
+This will allow you to use the command ```md2confluence``` anywhere.
+
+But, it's intended to development environments and I recommend to install it as dev dependency:
 
 ```bash
 npm install --save-dev md2confluence
 ```
+
+...and excecuting it as a npm script.
+
 
 ### Create the .md2confluence-rc file
 
@@ -53,6 +65,33 @@ It's relative to the dir where you run the command.
 __pages[*].mdfile__ (OPTIONAL):
 The path to the file in Markdown format with the content to update the page.
 It's relative to the dir where you run the command.
+
+
+### Excecute as a node app
+
+You can use the command in the working directory (if it was installed globally):
+
+```bash
+md2confluence
+```
+
+Or exceute it from your node_modules in your working directory (installed locally):
+
+```bash
+node_modules/.bin/md2confluence
+```
+
+Or you can add this like a npm script in your package.json (recommended if it was installed as devDependencies):
+
+```javascript
+{
+  ...
+  "scripts": {
+    "pushdoc": "md2confluence"
+  },
+  ...
+}
+```
 
 
 ## Need new features?
