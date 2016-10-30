@@ -1,6 +1,6 @@
 {
   "name": "md2confluence",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
@@ -23,14 +23,11 @@
   },
   "keywords": [
     "confluence",
-    "content",
-    "confluence",
-    "update",
-    "page",
-    "confluence",
+    "content confluence",
+    "update confluence",
+    "page confluence",
     "markdown",
-    "markdown",
-    "wiki"
+    "markdown wiki"
   ],
   "author": "Jormar Arellano <jormar.arellano@gmail.com> (https://github.com/jormar)",
   "license": "MIT",
