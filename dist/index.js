@@ -18,6 +18,8 @@ var logger = new winston.Logger({
   exitOnError: true
 });
 var prompts = [];
+var user = process.env.MD2CUSER;
+var pass = process.env.MD2CPASS;
 var config = void 0;
 
 /*
@@ -34,9 +36,14 @@ try {
   }
 }
 
-/*
- * Let's ask for user/pass if not specified
- */
+if (user) {
+  config.user = user;
+}
+
+if (pass) {
+  config.pass = pass;
+}
+
 if (!config.user) {
   prompts.push({
     type: 'input',
