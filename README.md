@@ -66,6 +66,16 @@ The path to the file in Markdown format with the content to update the page.
 It's relative to the dir where you run the command.
 
 
+### Use Environmental Variables to store username and password
+
+If you wish to not use the config file to store your username and password, you may also use your Environmental Variables to do so. The name of the environmental variables must be as below:
+
+```
+Username = $MD2CUSER
+Password = $MD2CPASS
+```
+
+
 ### Excecute as a node app
 
 You can use the command in the working directory (if it was installed globally):
