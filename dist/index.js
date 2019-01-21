@@ -76,6 +76,13 @@ inquirer.prompt(prompts).then(function (_answers) {
       var currentPage = void 0;
       var newContent = void 0;
 
+      var prefix = config.prefix || '';
+
+      // Add the prefix (if defined) to the beginning of the wiki data
+      if (prefix) {
+        mdWikiData = '{info}' + prefix + '{info}\n\n' + mdWikiData;
+      }
+
       // 3. Transform the Markdown Wiki to Storage (confluence scripting)
       return rp({
         method: 'POST',
@@ -92,7 +99,8 @@ inquirer.prompt(prompts).then(function (_answers) {
           pass: answers.pass,
           sendImmediately: true
         },
-        json: true })
+        json: true // Automatically stringifies the body to JSON
+      })
 
       // 4. Get current data of the confluence page
       .then(function (data) {
@@ -109,7 +117,8 @@ inquirer.prompt(prompts).then(function (_answers) {
             pass: answers.pass,
             sendImmediately: true
           },
-          json: true });
+          json: true // Automatically stringifies the body to JSON
+        });
       })
 
       // 5. Update the page in confluence
@@ -136,7 +145,8 @@ inquirer.prompt(prompts).then(function (_answers) {
             pass: answers.pass,
             sendImmediately: true
           },
-          json: true });
+          json: true // Automatically stringifies the body to JSON
+        });
       })
 
       // everything is saved
