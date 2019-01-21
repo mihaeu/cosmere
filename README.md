@@ -1,10 +1,9 @@
 # md2confluence
 Update confluence pages from your markdown files (like a README.md)
 
-## HowTo use it
+## How to use it
 
 ### Install the package
-
 
 You can safely install it as a global package:
 
@@ -21,7 +20,6 @@ npm install --save-dev md2confluence
 
 ...and excecuting it as a npm script.
 
-
 ### Create the .md2confluence-rc file
 
 It's mandatory. It looks like:
@@ -30,6 +28,7 @@ It's mandatory. It looks like:
   "baseUrl": "https://my.atlassian.net/wiki/rest/api",
   "user": "my-user (Optional)",
   "pass": "my-password (Optional)",
+  "prefix": "This document is automatically generated. Please don't edit it directly!",
   "pages": [
     {
       "pageid": "37748761",
@@ -41,29 +40,34 @@ It's mandatory. It looks like:
 }
 ```
 
-__baseUrl__:
-it's the atlassian API url of confluence.
+**Basic Settings**
 
-__user__ (OPTIONAL):
-Your confluence username. If you don't set any it will be prompt it.
+| Key | Description |
+| --- | --- |
+| baseUrl | the Atlassian API url of confluence |
+| user | your confluence username. If you don't set any it will be prompt it |
+| pass | your confluence password. If you don't set any it will be prompt it |
+| prefix | OPTIONAL - a general information that is included at the top of the confluence page |
+| pages | a list of objects with the pages do you want to update |
 
-__pass__ (OPTIONAL):
-Your confluence password. If you don't set any it will be prompt it.
+Each page object can define the following key value pairs.
 
-__pages__:
-A list of objects with the pages do you want to Update.
+**Page Settings**
 
-__pages[*].pageid__:
-The page ID of confluence.
-You can see it as a URL Param when you edit your page in confluence.
+| Key | Description |
+| --- | --- |
+| pageid | the page ID of the confluence page to update ([How to get Confluence page ID](https://confluence.atlassian.com/confkb/how-to-get-confluence-page-id-648380445.html)) |
+| mdfile | The path to the file in Markdown format with the content to update the page. It's relative to the dir where you run the command. |
+| title | the page title, if skipped the already defined page title will be kept.
 
-__pages[*].mdfile__:
-The path to the file in Markdown format with the content to update the page.
-It's relative to the dir where you run the command.
+### Use Environmental Variables to store username and password
 
-__pages[*].mdfile__ (OPTIONAL):
-The path to the file in Markdown format with the content to update the page.
-It's relative to the dir where you run the command.
+If you wish to not use the config file to store your username and password, you may also use your Environmental Variables to do so. The name of the environmental variables must be as below:
+
+```
+Username = $MD2CUSER
+Password = $MD2CPASS
+```
 
 
 ### Excecute as a node app
@@ -74,7 +78,7 @@ You can use the command in the working directory (if it was installed globally):
 md2confluence
 ```
 
-Or exceute it from your node_modules in your working directory (installed locally):
+Or execute it from your node_modules in your working directory (installed locally):
 
 ```bash
 node_modules/.bin/md2confluence
