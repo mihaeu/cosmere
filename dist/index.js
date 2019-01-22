@@ -6,16 +6,19 @@ var markdown2confluence = require('markdown2confluence');
 var fsp = require('fs-promise');
 var fs = require('fs');
 var path = require('path');
-var winston = require('winston');
+
+var _require = require('winston'),
+    createLogger = _require.createLogger,
+    format = _require.format,
+    transports = _require.transports;
 
 // A preffer to use this instead console.log
-var logger = new winston.Logger({
-  transports: [new winston.transports.Console({
-    handleExceptions: true,
-    json: false,
-    colorize: true
-  })],
-  exitOnError: true
+
+
+var logger = createLogger({
+  transports: [new transports.Console()],
+  exitOnError: true,
+  format: format.cli()
 });
 var prompts = [];
 var user = process.env.MD2CUSER;
@@ -69,6 +72,8 @@ inquirer.prompt(prompts).then(function (_answers) {
   var _loop = function _loop(i) {
     var pageData = config.pages[i];
 
+    logger.debug('Starting to render "' + pageData.mdfile + '"');
+
     // 1. Get the markdown file content
     fsp.readFile(pageData.mdfile, { encoding: 'utf8' }).then(function (fileData) {
       // 2. Transform the content to Markdown Wiki
@@ -101,7 +106,6 @@ inquirer.prompt(prompts).then(function (_answers) {
         },
         json: true // Automatically stringifies the body to JSON
       })
-
       // 4. Get current data of the confluence page
       .then(function (data) {
         newContent = data;
@@ -150,7 +154,7 @@ inquirer.prompt(prompts).then(function (_answers) {
       })
 
       // everything is saved
-      .then(function () /* data */{
+      .then(function () {
         logger.info('"' + currentPage.title + '" saved in confluence.');
       });
     }).catch(function (err) {
