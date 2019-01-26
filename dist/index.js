@@ -88,75 +88,102 @@ inquirer.prompt(prompts).then(function (_answers) {
         mdWikiData = '{info}' + prefix + '{info}\n\n' + mdWikiData;
       }
 
-      // 3. Transform the Markdown Wiki to Storage (confluence scripting)
-      return rp({
-        method: 'POST',
-        uri: config.baseUrl + '/contentbody/convert/storage',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: {
-          value: mdWikiData,
-          representation: 'wiki'
-        },
-        auth: {
-          user: answers.user,
-          pass: answers.pass,
-          sendImmediately: true
-        },
-        json: true // Automatically stringifies the body to JSON
-      })
-      // 4. Get current data of the confluence page
-      .then(function (data) {
-        newContent = data;
+      var dir = './tmp';
 
-        return rp({
-          method: 'GET',
-          uri: config.baseUrl + '/content/' + pageData.pageid,
-          body: {
-            some: 'payload'
-          },
-          auth: {
-            user: answers.user,
-            pass: answers.pass,
-            sendImmediately: true
-          },
-          json: true // Automatically stringifies the body to JSON
-        });
-      })
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
 
-      // 5. Update the page in confluence
-      .then(function (data) {
-        currentPage = data;
-        currentPage.title = pageData.title;
-        currentPage.body = {
-          storage: {
-            value: newContent.value,
-            representation: 'storage'
-          }
-        };
-        currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
+      var tempFile = dir + '/' + pageData.pageid;
 
-        return rp({
-          method: 'PUT',
-          uri: config.baseUrl + '/content/' + pageData.pageid,
+      var needsContentUpdate = true;
+      if (fs.existsSync(tempFile)) {
+        var fileContent = fs.readFileSync(tempFile, 'utf-8');
+
+        if (fileContent === mdWikiData) {
+          needsContentUpdate = false;
+        }
+      }
+
+      fs.writeFileSync(tempFile, mdWikiData, 'utf-8');
+
+      var promise = void 0;
+
+      if (needsContentUpdate) {
+        // 3. Transform the Markdown Wiki to Storage (confluence scripting)
+        promise = rp({
+          method: 'POST',
+          uri: config.baseUrl + '/contentbody/convert/storage',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: currentPage,
+          body: {
+            value: mdWikiData,
+            representation: 'wiki'
+          },
           auth: {
             user: answers.user,
             pass: answers.pass,
             sendImmediately: true
           },
           json: true // Automatically stringifies the body to JSON
-        });
-      })
+        })
+        // 4. Get current data of the confluence page
+        .then(function (data) {
+          newContent = data;
 
-      // everything is saved
-      .then(function () {
-        logger.info('"' + currentPage.title + '" saved in confluence.');
-      });
+          return rp({
+            method: 'GET',
+            uri: config.baseUrl + '/content/' + pageData.pageid,
+            body: {
+              some: 'payload'
+            },
+            auth: {
+              user: answers.user,
+              pass: answers.pass,
+              sendImmediately: true
+            },
+            json: true // Automatically stringifies the body to JSON
+          });
+        })
+
+        // 5. Update the page in confluence
+        .then(function (data) {
+          currentPage = data;
+          currentPage.title = pageData.title;
+          currentPage.body = {
+            storage: {
+              value: newContent.value,
+              representation: 'storage'
+            }
+          };
+          currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
+
+          return rp({
+            method: 'PUT',
+            uri: config.baseUrl + '/content/' + pageData.pageid,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: currentPage,
+            auth: {
+              user: answers.user,
+              pass: answers.pass,
+              sendImmediately: true
+            },
+            json: true // Automatically stringifies the body to JSON
+          });
+        })
+
+        // everything is saved
+        .then(function () {
+          logger.info('"' + currentPage.title + '" saved in confluence.');
+        });
+      } else {
+        logger.info('No content update necessary for "' + pageData.mdfile + '"');
+      }
+
+      return promise;
     }).catch(function (err) {
       logger.error(err);
     });
