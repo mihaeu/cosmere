@@ -1,18 +1,9 @@
-// import axios from 'axios';
 import * as fs from "fs";
 
 const axios = require("axios");
 const inquirer = require("inquirer");
 const markdown2confluence = require("markdown2confluence");
 const path = require("path");
-const { createLogger, format, transports } = require("winston");
-
-// A preffer to use this instead console.log
-const logger = createLogger({
-  transports: [new transports.Console()],
-  exitOnError: true,
-  format: format.cli()
-});
 
 type Page = {
   pageid: string;
@@ -30,7 +21,7 @@ type Config = {
 function readConfigFromFile(): Config {
   const configPath = path.join(".md2confluence-rc");
   if (!fs.existsSync(configPath)) {
-    logger.error("File .md2confluence-rc not found!");
+    console.error("File .md2confluence-rc not found!");
     process.exit(1);
   }
 
@@ -69,14 +60,13 @@ async function promptUserAndPassIfNotSet(config: Config): Promise<Config> {
 }
 
 async function updatePage(pageData: Page, config: Config) {
-  logger.debug(`Starting to render "${pageData.mdfile}"`);
+  console.debug(`Starting to render "${pageData.mdfile}"`);
 
   const fileData = fs.readFileSync(pageData.mdfile, { encoding: "utf8" });
   let mdWikiData = markdown2confluence(fileData);
 
-  const prefix = config.prefix || "";
+  const prefix = config.prefix;
 
-  // Add the prefix (if defined) to the beginning of the wiki data
   if (prefix) {
     mdWikiData = `{info}${prefix}{info}\n\n${mdWikiData}`;
   }
@@ -98,7 +88,7 @@ async function updatePage(pageData: Page, config: Config) {
   //   }
   // }
   // if (!needsContentUpdate) {
-  //   logger.info(`No content update necessary for "${pageData.mdfile}"`);
+  //   console.info(`No content update necessary for "${pageData.mdfile}"`);
   //   return;
   // }
 
@@ -142,7 +132,7 @@ async function updatePage(pageData: Page, config: Config) {
     ...auth,
   });
 
-  logger.info(`"${currentPage.title}" saved in confluence.`);
+  console.info(`"${currentPage.title}" saved in confluence.`);
 }
 
 export async function md2confluence() {

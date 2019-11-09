@@ -54,23 +54,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import axios from 'axios';
 var fs = __importStar(require("fs"));
 var axios = require("axios");
 var inquirer = require("inquirer");
 var markdown2confluence = require("markdown2confluence");
 var path = require("path");
-var _a = require("winston"), createLogger = _a.createLogger, format = _a.format, transports = _a.transports;
-// A preffer to use this instead console.log
-var logger = createLogger({
-    transports: [new transports.Console()],
-    exitOnError: true,
-    format: format.cli()
-});
 function readConfigFromFile() {
     var configPath = path.join(".md2confluence-rc");
     if (!fs.existsSync(configPath)) {
-        logger.error("File .md2confluence-rc not found!");
+        console.error("File .md2confluence-rc not found!");
         process.exit(1);
     }
     return JSON.parse(fs.readFileSync(configPath, "utf8"));
@@ -117,11 +109,10 @@ function updatePage(pageData, config) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    logger.debug("Starting to render \"" + pageData.mdfile + "\"");
+                    console.debug("Starting to render \"" + pageData.mdfile + "\"");
                     fileData = fs.readFileSync(pageData.mdfile, { encoding: "utf8" });
                     mdWikiData = markdown2confluence(fileData);
-                    prefix = config.prefix || "";
-                    // Add the prefix (if defined) to the beginning of the wiki data
+                    prefix = config.prefix;
                     if (prefix) {
                         mdWikiData = "{info}" + prefix + "{info}\n\n" + mdWikiData;
                     }
@@ -139,7 +130,7 @@ function updatePage(pageData, config) {
                     //   }
                     // }
                     // if (!needsContentUpdate) {
-                    //   logger.info(`No content update necessary for "${pageData.mdfile}"`);
+                    //   console.info(`No content update necessary for "${pageData.mdfile}"`);
                     //   return;
                     // }
                     fs.writeFileSync(tempFile, mdWikiData, "utf-8");
@@ -173,7 +164,7 @@ function updatePage(pageData, config) {
                             } }, auth))];
                 case 3:
                     _a.sent();
-                    logger.info("\"" + currentPage.title + "\" saved in confluence.");
+                    console.info("\"" + currentPage.title + "\" saved in confluence.");
                     return [2 /*return*/];
             }
         });
