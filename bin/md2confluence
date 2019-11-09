@@ -1,3 +1,8 @@
 #!/usr/bin/env node
 
-require('../dist/index');
+const md2confluence = require('../dist/index');
+
+md2confluence.md2confluence().then().catch(e  => {
+  console.error(e);
+  process.exit(1);
+});
