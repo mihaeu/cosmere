@@ -56,13 +56,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
 var axios = require("axios");
+var axiosFile = require("axios-file");
 var inquirer = require("inquirer");
 var markdown2confluence = require("markdown2confluence");
 var path = require("path");
 function readConfigFromFile() {
-    var configPath = path.join(".md2confluence-rc");
+    var configPath = path.join("markdown2confluence.json");
     if (!fs.existsSync(configPath)) {
-        console.error("File .md2confluence-rc not found!");
+        console.error("File markdown2confluence.json not found!");
         process.exit(1);
     }
     return JSON.parse(fs.readFileSync(configPath, "utf8"));
@@ -83,14 +84,14 @@ function promptUserAndPassIfNotSet(config) {
                         prompts.push({
                             type: "input",
                             name: "user",
-                            message: "Your Confluence username:"
+                            message: "Your Confluence username:",
                         });
                     }
                     if (!config.pass) {
                         prompts.push({
                             type: "password",
                             name: "pass",
-                            message: "Your Confluence password:"
+                            message: "Your Confluence password:",
                         });
                     }
                     return [4 /*yield*/, inquirer.prompt(prompts)];
@@ -103,14 +104,69 @@ function promptUserAndPassIfNotSet(config) {
         });
     });
 }
-function updatePage(pageData, config) {
+function convertToWikiFormat(config, mdWikiData, auth) {
     return __awaiter(this, void 0, void 0, function () {
-        var fileData, mdWikiData, prefix, dir, tempFile, auth, newContent, currentPage;
+        var newContent;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios.post(config.baseUrl + "/contentbody/convert/storage", {
+                        value: mdWikiData,
+                        representation: "wiki",
+                    }, __assign({ headers: {
+                            "Content-Type": "application/json",
+                        } }, auth))];
+                case 1:
+                    newContent = _a.sent();
+                    return [2 /*return*/, newContent];
+            }
+        });
+    });
+}
+function updateConfluencePage(currentPage, pageData, newContent, config, auth) {
+    return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.debug("Starting to render \"" + pageData.mdfile + "\"");
-                    fileData = fs.readFileSync(pageData.mdfile, { encoding: "utf8" });
+                    currentPage.title = pageData.title;
+                    currentPage.body = {
+                        storage: {
+                            value: newContent.data.value,
+                            representation: "storage",
+                        },
+                    };
+                    currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
+                    return [4 /*yield*/, axios.put(config.baseUrl + "/content/" + pageData.pageId, currentPage, __assign({ headers: {
+                                "Content-Type": "application/json",
+                            } }, auth))];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function deleteAttachments(pageData, config, auth) {
+    return __awaiter(this, void 0, void 0, function () {
+        var attachments;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", auth)];
+                case 1:
+                    attachments = _a.sent();
+                    attachments.data.results.forEach(function (attachment) { return axios.delete("https://confluence.tngtech.com/rest/api/content/" + attachment.id, auth); });
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function updatePage(pageData, config) {
+    return __awaiter(this, void 0, void 0, function () {
+        var fileData, mdWikiData, prefix, dir, tempFile, needsContentUpdate, fileContent, auth, newContent, currentPage;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.debug("Starting to render \"" + pageData.file + "\"");
+                    fileData = fs.readFileSync(pageData.file, { encoding: "utf8" });
                     mdWikiData = markdown2confluence(fileData);
                     prefix = config.prefix;
                     if (prefix) {
@@ -120,51 +176,64 @@ function updatePage(pageData, config) {
                     if (!fs.existsSync(dir)) {
                         fs.mkdirSync(dir);
                     }
-                    tempFile = dir + "/" + pageData.pageid;
-                    // let needsContentUpdate = true;
-                    // if (fs.existsSync(tempFile)) {
-                    //   const fileContent = fs.readFileSync(tempFile, "utf-8");
-                    //
-                    //   if (fileContent === mdWikiData) {
-                    //     needsContentUpdate = false;
-                    //   }
-                    // }
-                    // if (!needsContentUpdate) {
-                    //   console.info(`No content update necessary for "${pageData.mdfile}"`);
-                    //   return;
-                    // }
-                    fs.writeFileSync(tempFile, mdWikiData, "utf-8");
+                    tempFile = dir + "/" + pageData.pageId;
+                    needsContentUpdate = true;
+                    if (fs.existsSync(tempFile)) {
+                        fileContent = fs.readFileSync(tempFile, "utf-8");
+                        if (fileContent === mdWikiData) {
+                            needsContentUpdate = false;
+                        }
+                    }
+                    if (!needsContentUpdate) {
+                        console.info("No content update necessary for \"" + pageData.file + "\"");
+                        return [2 /*return*/];
+                    }
                     auth = {
                         auth: {
                             username: config.user,
                             password: config.pass,
-                        }
+                        },
                     };
-                    return [4 /*yield*/, axios.post(config.baseUrl + "/contentbody/convert/storage", {
-                            value: mdWikiData,
-                            representation: "wiki"
-                        }, __assign({ headers: {
-                                "Content-Type": "application/json"
-                            } }, auth))];
+                    return [4 /*yield*/, convertToWikiFormat(config, mdWikiData, auth)];
                 case 1:
                     newContent = _a.sent();
-                    return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageid, auth)];
+                    newContent.data.value = newContent.data.value.replace(/<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>([\s\S]+?)<\/ac:plain-text-body><\/ac:structured-macro>/, '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>');
+                    return [4 /*yield*/, deleteAttachments(pageData, config, auth)];
                 case 2:
-                    currentPage = (_a.sent()).data;
-                    currentPage.title = pageData.title;
-                    currentPage.body = {
-                        storage: {
-                            value: newContent.data.value,
-                            representation: "storage"
-                        }
-                    };
-                    currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
-                    return [4 /*yield*/, axios.put(config.baseUrl + "/content/" + pageData.pageid, currentPage, __assign({ headers: {
-                                "Content-Type": "application/json"
-                            } }, auth))];
-                case 3:
                     _a.sent();
+                    newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g)
+                        .map(function (s) { return s.replace(/.*"(.+)".*/, '$1'); })
+                        .filter(function (filename) { return fs.existsSync(filename); })
+                        .forEach(function (filename) {
+                        var newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
+                        fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+                        uploadAttachment(newFilename, pageData, config, auth);
+                    });
+                    newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, function (s) { return s.replace('/', '_'); });
+                    return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
+                case 3:
+                    currentPage = (_a.sent()).data;
+                    return [4 /*yield*/, updateConfluencePage(currentPage, pageData, newContent, config, auth)];
+                case 4:
+                    _a.sent();
+                    fs.writeFileSync(tempFile, mdWikiData, "utf-8");
                     console.info("\"" + currentPage.title + "\" saved in confluence.");
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function uploadAttachment(filename, pageData, config, auth) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, axiosFile(__assign({ url: config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", method: 'post', headers: {
+                            'X-Atlassian-Token': 'nocheck',
+                        }, data: {
+                            file: fs.createReadStream(filename)
+                        } }, auth))];
+                case 1:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });

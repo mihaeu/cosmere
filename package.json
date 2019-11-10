@@ -14,6 +14,10 @@
     "type": "git",
     "url": "git+https://github.com/mihaeu/md2confluence.git"
   },
+  "scripts": {
+    "watch": "node_modules/typescript/bin/tsc --watch",
+    "fix": "node_modules/prettier/bin-prettier.js --trailing-comma=all --print-width=120 --tab-width=4 --parser=typescript --write src/*.ts"
+  },
   "keywords": [
     "confluence",
     "content confluence",
@@ -24,7 +28,10 @@
     "markdown",
     "markdown wiki"
   ],
-  "author": "Jormar Arellano <jormar.arellano@gmail.com> (https://github.com/jormar)",
+  "authors": [
+    "Jormar Arellano <jormar.arellano@gmail.com> (https://github.com/jormar)",
+    "Michael Haeuslmann <michael.haeuslmann@gmail.com> (https://github.com/mihaeu)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/mihaeu/md2confluence/issues"
@@ -35,7 +42,11 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "ajv": "^6.10.2",
     "axios": "^0.19.0",
+    "axios-file": "^1.0.16",
+    "docopt": "^0.6.2",
+    "form-data": "^3.0.0",
     "inquirer": "6.2.1",
     "markdown2confluence": "1.3.0",
     "prettier": "^1.19.1"
