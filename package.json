@@ -1,10 +1,10 @@
 {
-  "name": "md2confluence",
+  "name": "@mihaeu/markdown-to-confluence",
   "version": "0.1.0",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
-    "md2confluence": "bin/md2confluence"
+    "md2confluence": "bin/markdown-to-confluence"
   },
   "files": [
     "dist",

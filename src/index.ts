@@ -26,9 +26,9 @@ type AuthHeaders = {
 };
 
 function readConfigFromFile(configPath: string|null): Config {
-  configPath = configPath || path.join("markdown2confluence.json");
+  configPath = configPath || path.join("markdown-to-confluence.json");
   if (!fs.existsSync(configPath!)) {
-    console.error("File markdown2confluence.json not found!");
+    console.error("File markdown-to-confluence.json not found!");
     process.exit(1);
   }
 
@@ -36,8 +36,8 @@ function readConfigFromFile(configPath: string|null): Config {
 }
 
 function overwriteAuthFromConfigWithEnvIfPresent(config: Config): Config {
-  config.user = process.env.MD2CUSER || config.user;
-  config.pass = process.env.MD2CPASS || config.pass;
+  config.user = process.env.CONFLUENCE_USERNAME || config.user;
+  config.pass = process.env.CONFLUENCE_PASSWORD || config.pass;
   return config;
 }
 
@@ -188,4 +188,22 @@ export async function md2confluence(configPath: string|null, force: boolean = fa
   let config: Config = await promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile(configPath)));
 
   config.pages.forEach(pageData => updatePage(pageData, config, force));
+}
+
+export function generateConfig(configPath: string|null) {
+  configPath = configPath || path.join("markdown-to-confluence.json");
+  fs.writeFileSync(configPath!, `{
+  "baseUrl": "YOUR_BASE_URL",
+  "user": "YOUR_USERNAME",
+  "pass": "YOUR_PASSWORD",
+  "prefix": "This document is automatically generated. Please don't edit it directly!",
+  "pages": [
+    {
+      "pageId": "1234567890",
+      "file": "README.md",
+      "title": "Optional title in the confluence page"
+    }
+  ]
+}
+`);
 }

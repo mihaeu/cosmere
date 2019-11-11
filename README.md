@@ -1,87 +1,59 @@
-# md2confluence
+# markdown-to-confluence
+
 Update confluence pages from your markdown files (like a README.md)
 
-## How to use it
+## Usage
 
 ### Install the package
 
 You can safely install it as a global package:
 
 ```bash
-npm install -g md2confluence
+npm install -g markdown-to-confluence
 ```
-This will allow you to use the command ```md2confluence``` anywhere.
+This will allow you to use the command `markdown-to-confluence` anywhere.
 
 But, it's intended to development environments and I recommend to install it as dev dependency:
 
 ```bash
-npm install --save-dev md2confluence
+npm install --save-dev markdown-to-confluence
 ```
 
 ...and excecuting it as a npm script.
 
-### Create the .md2confluence-rc file
+### Create the `markdown-to-confluence.json` file
 
 It's mandatory. It looks like:
-```javascript
-{
-  "baseUrl": "https://my.atlassian.net/wiki/rest/api",
-  "user": "my-user (Optional)",
-  "pass": "my-password (Optional)",
-  "prefix": "This document is automatically generated. Please don't edit it directly!",
-  "pages": [
-    {
-      "pageid": "37748761",
-      "mdfile": "README.md",
-      "title": "Optional title in the confluence page"
-    },
-    ...
-  ]
-}
+
+```bash
+markdown-to-confluence generate-config [--config=<path>]
 ```
-
-**Basic Settings**
-
-| Key | Description |
-| --- | --- |
-| baseUrl | the Atlassian API url of confluence |
-| user | your confluence username. If you don't set any it will be prompt it |
-| pass | your confluence password. If you don't set any it will be prompt it |
-| prefix | OPTIONAL - a general information that is included at the top of the confluence page |
-| pages | a list of objects with the pages do you want to update |
-
-Each page object can define the following key value pairs.
-
-**Page Settings**
-
-| Key | Description |
-| --- | --- |
-| pageid | the page ID of the confluence page to update ([How to get Confluence page ID](https://confluence.atlassian.com/confkb/how-to-get-confluence-page-id-648380445.html)) |
-| mdfile | The path to the file in Markdown format with the content to update the page. It's relative to the dir where you run the command. |
-| title | the page title, if skipped the already defined page title will be kept.
 
 ### Use Environmental Variables to store username and password
 
 If you wish to not use the config file to store your username and password, you may also use your Environmental Variables to do so. The name of the environmental variables must be as below:
 
 ```
-Username = $MD2CUSER
-Password = $MD2CPASS
-```
+CONFLUENCE_USER=YOUR_USERNAME
+CONFLUENCE_PASSWORD=YOUR_PASSWORD
 
+# or
+
+ CONFLUENCE_USER=YOUR_USERNAME CONFLUENCE_PASSWORD=YOUR_PASSWORD markdown-to-confluence
+```
 
 ### Excecute as a node app
 
 You can use the command in the working directory (if it was installed globally):
 
 ```bash
-md2confluence
+markdown-to-confluence
 ```
 
 Or execute it from your node_modules in your working directory (installed locally):
 
 ```bash
-node_modules/.bin/md2confluence
+node_modules/.bin/markdown-to-confluence
 ```
 
 Or you can add this like a npm script in your package.json (recommended if it was installed as devDependencies):
@@ -90,12 +62,11 @@ Or you can add this like a npm script in your package.json (recommended if it wa
 {
   ...
   "scripts": {
-    "pushdoc": "md2confluence"
+    "pushdoc": "markdown-to-confluence"
   },
   ...
 }
 ```
-
 
 ## Need new features?
 
