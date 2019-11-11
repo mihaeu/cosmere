@@ -60,8 +60,8 @@ var axiosFile = require("axios-file");
 var inquirer = require("inquirer");
 var markdown2confluence = require("markdown2confluence");
 var path = require("path");
-function readConfigFromFile() {
-    var configPath = path.join("markdown2confluence.json");
+function readConfigFromFile(configPath) {
+    configPath = configPath || path.join("markdown2confluence.json");
     if (!fs.existsSync(configPath)) {
         console.error("File markdown2confluence.json not found!");
         process.exit(1);
@@ -159,9 +159,10 @@ function deleteAttachments(pageData, config, auth) {
         });
     });
 }
-function updatePage(pageData, config) {
+function updatePage(pageData, config, force) {
     return __awaiter(this, void 0, void 0, function () {
         var fileData, mdWikiData, prefix, dir, tempFile, needsContentUpdate, fileContent, auth, newContent, currentPage;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -184,7 +185,7 @@ function updatePage(pageData, config) {
                             needsContentUpdate = false;
                         }
                     }
-                    if (!needsContentUpdate) {
+                    if (!force && !needsContentUpdate) {
                         console.info("No content update necessary for \"" + pageData.file + "\"");
                         return [2 /*return*/];
                     }
@@ -204,11 +205,20 @@ function updatePage(pageData, config) {
                     newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g)
                         .map(function (s) { return s.replace(/.*"(.+)".*/, '$1'); })
                         .filter(function (filename) { return fs.existsSync(filename); })
-                        .forEach(function (filename) {
-                        var newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
-                        fs.copyFileSync(__dirname + '/../' + filename, newFilename);
-                        uploadAttachment(newFilename, pageData, config, auth);
-                    });
+                        .forEach(function (filename) { return __awaiter(_this, void 0, void 0, function () {
+                        var newFilename;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
+                                    fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+                                    return [4 /*yield*/, uploadAttachment(newFilename, pageData, config, auth)];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
                     newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, function (s) { return s.replace('/', '_'); });
                     return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
                 case 3:
@@ -239,15 +249,16 @@ function uploadAttachment(filename, pageData, config, auth) {
         });
     });
 }
-function md2confluence() {
+function md2confluence(configPath, force) {
+    if (force === void 0) { force = false; }
     return __awaiter(this, void 0, void 0, function () {
         var config;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile()))];
+                case 0: return [4 /*yield*/, promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile(configPath)))];
                 case 1:
                     config = _a.sent();
-                    config.pages.forEach(function (pageData) { return updatePage(pageData, config); });
+                    config.pages.forEach(function (pageData) { return updatePage(pageData, config, force); });
                     return [2 /*return*/];
             }
         });

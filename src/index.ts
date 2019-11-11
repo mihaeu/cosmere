@@ -25,14 +25,14 @@ type AuthHeaders = {
   }
 };
 
-function readConfigFromFile(): Config {
-  const configPath = path.join("markdown2confluence.json");
-  if (!fs.existsSync(configPath)) {
+function readConfigFromFile(configPath: string|null): Config {
+  configPath = configPath || path.join("markdown2confluence.json");
+  if (!fs.existsSync(configPath!)) {
     console.error("File markdown2confluence.json not found!");
     process.exit(1);
   }
 
-  return JSON.parse(fs.readFileSync(configPath, "utf8")) as Config;
+  return JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
 }
 
 function overwriteAuthFromConfigWithEnvIfPresent(config: Config): Config {
@@ -106,13 +106,10 @@ async function deleteAttachments(pageData: Page, config: Config, auth: AuthHeade
   attachments.data.results.forEach((attachment: any) => axios.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, auth));
 }
 
-async function updatePage(pageData: Page, config: Config) {
+async function updatePage(pageData: Page, config: Config, force: boolean) {
   console.debug(`Starting to render "${pageData.file}"`);
 
   let fileData = fs.readFileSync(pageData.file, { encoding: "utf8" });
-  // fileData.match(/\!\[.*\]\((?<imgLink>.+?)\)/g)!.map(s => s.replace(/.*\((.+)\).*/, "$1")).forEach(s => {
-  //
-  // });
   let mdWikiData = markdown2confluence(fileData);
 
   const prefix = config.prefix;
@@ -137,7 +134,7 @@ async function updatePage(pageData: Page, config: Config) {
       needsContentUpdate = false;
     }
   }
-  if (!needsContentUpdate) {
+  if (!force && !needsContentUpdate) {
     console.info(`No content update necessary for "${pageData.file}"`);
     return;
   }
@@ -159,10 +156,10 @@ async function updatePage(pageData: Page, config: Config) {
   newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g)
     .map((s: string) => s.replace(/.*"(.+)".*/, '$1'))
     .filter((filename: string) => fs.existsSync(filename))
-    .forEach((filename: string) => {
+    .forEach(async (filename: string) => {
       const newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
       fs.copyFileSync(__dirname + '/../' + filename, newFilename);
-      uploadAttachment(newFilename, pageData, config, auth)
+      await uploadAttachment(newFilename, pageData, config, auth)
     });
   newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace('/', '_'));
 
@@ -187,8 +184,8 @@ async function uploadAttachment(filename: string, pageData: Page, config: Config
   });
 }
 
-export async function md2confluence() {
-  let config: Config = await promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile()));
+export async function md2confluence(configPath: string|null, force: boolean = false) {
+  let config: Config = await promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile(configPath)));
 
-  config.pages.forEach(pageData => updatePage(pageData, config));
+  config.pages.forEach(pageData => updatePage(pageData, config, force));
 }

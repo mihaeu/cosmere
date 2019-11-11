@@ -1,8 +1,20 @@
 #!/usr/bin/env node
 
-const md2confluence = require('../dist/index');
+const docopt = require('docopt');
+const options = docopt.docopt(`
+Usage:
+  markdown-to-confluence [--force] [--config=<path>]
 
-md2confluence.md2confluence().then().catch(e  => {
-  console.error(e);
-  process.exit(1);
-});
+Options:
+  --force           always upload even if the file looks the same
+  --config=<path>   specify the path to the config
+`);
+
+const md2confluence = require('../dist/index');
+md2confluence.md2confluence(options['--config'], options['--force'])
+  .then()
+  .catch(e  => {
+    console.error(e);
+    process.exit(1);
+  }
+);
