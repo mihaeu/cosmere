@@ -26,13 +26,19 @@ type AuthHeaders = {
 };
 
 function readConfigFromFile(configPath: string|null): Config {
-  configPath = configPath || path.join("markdown-to-confluence.json");
+  configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
   if (!fs.existsSync(configPath!)) {
-    console.error("File markdown-to-confluence.json not found!");
+    console.error(`File "${configPath}" not found!`);
     process.exit(1);
   }
 
-  return JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
+  let config = JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
+  for (const i in config.pages) {
+    config.pages[i].file = fs.existsSync(config.pages[i].file)
+      ? config.pages[i].file
+      : path.resolve(path.dirname(configPath) + '/' + config.pages[i].file);
+  }
+  return config;
 }
 
 function overwriteAuthFromConfigWithEnvIfPresent(config: Config): Config {
@@ -92,7 +98,6 @@ async function updateConfluencePage(currentPage: any, pageData: Page, newContent
     },
   };
   currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
-
   await axios.put(`${config.baseUrl}/content/${pageData.pageId}`, currentPage, {
     headers: {
       "Content-Type": "application/json",
@@ -148,20 +153,24 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
 
   const newContent = await convertToWikiFormat(config, mdWikiData, auth);
   newContent.data.value = newContent.data.value.replace(
-    /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>([\s\S]+?)<\/ac:plain-text-body><\/ac:structured-macro>/,
+    /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
     '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
   );
 
   await deleteAttachments(pageData, config, auth);
-  newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g)
-    .map((s: string) => s.replace(/.*"(.+)".*/, '$1'))
-    .filter((filename: string) => fs.existsSync(filename))
-    .forEach(async (filename: string) => {
-      const newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
-      fs.copyFileSync(__dirname + '/../' + filename, newFilename);
-      await uploadAttachment(newFilename, pageData, config, auth)
-    });
-  newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace('/', '_'));
+
+  const attachments = newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g);
+  if (attachments) {
+    attachments
+      .map((s: string) => s.replace(/.*"(.+)".*/, '$1'))
+      .filter((filename: string) => fs.existsSync(filename))
+      .forEach(async (filename: string) => {
+        const newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
+        fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+        await uploadAttachment(newFilename, pageData, config, auth)
+      });
+    newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace('/', '_'));
+  }
 
   const currentPage = (await axios.get(`${config.baseUrl}/content/${pageData.pageId}`, auth)).data;
   await updateConfluencePage(currentPage, pageData, newContent, config, auth);
@@ -187,7 +196,7 @@ async function uploadAttachment(filename: string, pageData: Page, config: Config
 export async function md2confluence(configPath: string|null, force: boolean = false) {
   let config: Config = await promptUserAndPassIfNotSet(overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile(configPath)));
 
-  config.pages.forEach(pageData => updatePage(pageData, config, force));
+  config.pages.forEach(async (pageData: Page) => await updatePage(pageData, config, force));
 }
 
 export function generateConfig(configPath: string|null) {
