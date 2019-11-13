@@ -13,10 +13,12 @@ type Page = {
 };
 type Config = {
   baseUrl: string;
+  cachePath: string;
   user?: string;
   pass?: string;
   prefix: string;
   pages: Page[];
+  configPath: string|null;
 };
 type AuthHeaders = {
   auth: {
@@ -38,6 +40,7 @@ function readConfigFromFile(configPath: string|null): Config {
       ? config.pages[i].file
       : path.resolve(path.dirname(configPath) + '/' + config.pages[i].file);
   }
+  config.configPath = configPath;
   return config;
 }
 
@@ -73,7 +76,7 @@ async function promptUserAndPassIfNotSet(config: Config): Promise<Config> {
 }
 
 async function convertToWikiFormat(config: Config, mdWikiData: string, auth: AuthHeaders) {
-  const newContent = await axios.post(
+  return await axios.post(
     `${config.baseUrl}/contentbody/convert/storage`,
     {
       value: mdWikiData,
@@ -86,7 +89,6 @@ async function convertToWikiFormat(config: Config, mdWikiData: string, auth: Aut
       ...auth,
     },
   );
-  return newContent;
 }
 
 async function updateConfluencePage(currentPage: any, pageData: Page, newContent: any, config: Config, auth: AuthHeaders) {
@@ -123,13 +125,13 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
     mdWikiData = `{info}${prefix}{info}\n\n${mdWikiData}`;
   }
 
-  const dir = "./tmp";
-
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+  const cachePath = fs.existsSync(config.cachePath)
+    ? config.cachePath
+    : path.resolve(path.dirname(config.configPath!) + '/' + config.cachePath);
+  if (!fs.existsSync(cachePath)) {
+    fs.mkdirSync(cachePath, {recursive: true});
   }
-
-  const tempFile = `${dir}/${pageData.pageId}`;
+  const tempFile = `${cachePath}/${pageData.pageId}`;
 
   let needsContentUpdate = true;
   if (fs.existsSync(tempFile)) {
@@ -151,12 +153,14 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
     },
   };
 
+  console.info(`Converting "${pageData.title}" to wiki format ...`);
   const newContent = await convertToWikiFormat(config, mdWikiData, auth);
   newContent.data.value = newContent.data.value.replace(
     /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
     '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
   );
 
+  console.info(`Deleting attachments for "${pageData.title}" ...`);
   await deleteAttachments(pageData, config, auth);
 
   const attachments = newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g);
@@ -167,12 +171,16 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
       .forEach(async (filename: string) => {
         const newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
         fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+        console.info(`Uploading attachment ${filename} for "${pageData.title}" ...`);
         await uploadAttachment(newFilename, pageData, config, auth)
       });
     newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace('/', '_'));
   }
 
+  console.info(`Fetch current page for "${pageData.title}" ...`);
   const currentPage = (await axios.get(`${config.baseUrl}/content/${pageData.pageId}`, auth)).data;
+
+  console.info(`Update page "${pageData.title}" ...`);
   await updateConfluencePage(currentPage, pageData, newContent, config, auth);
 
   fs.writeFileSync(tempFile, mdWikiData, "utf-8");
@@ -205,6 +213,7 @@ export function generateConfig(configPath: string|null) {
   "baseUrl": "YOUR_BASE_URL",
   "user": "YOUR_USERNAME",
   "pass": "YOUR_PASSWORD",
+  "cachePath": "build",
   "prefix": "This document is automatically generated. Please don't edit it directly!",
   "pages": [
     {

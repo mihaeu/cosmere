@@ -72,6 +72,7 @@ function readConfigFromFile(configPath) {
             ? config.pages[i].file
             : path.resolve(path.dirname(configPath) + '/' + config.pages[i].file);
     }
+    config.configPath = configPath;
     return config;
 }
 function overwriteAuthFromConfigWithEnvIfPresent(config) {
@@ -112,7 +113,6 @@ function promptUserAndPassIfNotSet(config) {
 }
 function convertToWikiFormat(config, mdWikiData, auth) {
     return __awaiter(this, void 0, void 0, function () {
-        var newContent;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, axios.post(config.baseUrl + "/contentbody/convert/storage", {
@@ -121,9 +121,7 @@ function convertToWikiFormat(config, mdWikiData, auth) {
                     }, __assign({ headers: {
                             "Content-Type": "application/json",
                         } }, auth))];
-                case 1:
-                    newContent = _a.sent();
-                    return [2 /*return*/, newContent];
+                case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
@@ -167,7 +165,7 @@ function deleteAttachments(pageData, config, auth) {
 }
 function updatePage(pageData, config, force) {
     return __awaiter(this, void 0, void 0, function () {
-        var fileData, mdWikiData, prefix, dir, tempFile, needsContentUpdate, fileContent, auth, newContent, attachments, currentPage;
+        var fileData, mdWikiData, prefix, cachePath, tempFile, needsContentUpdate, fileContent, auth, newContent, attachments, currentPage;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -179,11 +177,13 @@ function updatePage(pageData, config, force) {
                     if (prefix) {
                         mdWikiData = "{info}" + prefix + "{info}\n\n" + mdWikiData;
                     }
-                    dir = "./tmp";
-                    if (!fs.existsSync(dir)) {
-                        fs.mkdirSync(dir);
+                    cachePath = fs.existsSync(config.cachePath)
+                        ? config.cachePath
+                        : path.resolve(path.dirname(config.configPath) + '/' + config.cachePath);
+                    if (!fs.existsSync(cachePath)) {
+                        fs.mkdirSync(cachePath, { recursive: true });
                     }
-                    tempFile = dir + "/" + pageData.pageId;
+                    tempFile = cachePath + "/" + pageData.pageId;
                     needsContentUpdate = true;
                     if (fs.existsSync(tempFile)) {
                         fileContent = fs.readFileSync(tempFile, "utf-8");
@@ -201,10 +201,12 @@ function updatePage(pageData, config, force) {
                             password: config.pass,
                         },
                     };
+                    console.info("Converting \"" + pageData.title + "\" to wiki format ...");
                     return [4 /*yield*/, convertToWikiFormat(config, mdWikiData, auth)];
                 case 1:
                     newContent = _a.sent();
                     newContent.data.value = newContent.data.value.replace(/<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/, '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>');
+                    console.info("Deleting attachments for \"" + pageData.title + "\" ...");
                     return [4 /*yield*/, deleteAttachments(pageData, config, auth)];
                 case 2:
                     _a.sent();
@@ -220,6 +222,7 @@ function updatePage(pageData, config, force) {
                                     case 0:
                                         newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
                                         fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+                                        console.info("Uploading attachment " + filename + " for \"" + pageData.title + "\" ...");
                                         return [4 /*yield*/, uploadAttachment(newFilename, pageData, config, auth)];
                                     case 1:
                                         _a.sent();
@@ -229,9 +232,11 @@ function updatePage(pageData, config, force) {
                         }); });
                         newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, function (s) { return s.replace('/', '_'); });
                     }
+                    console.info("Fetch current page for \"" + pageData.title + "\" ...");
                     return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
                 case 3:
                     currentPage = (_a.sent()).data;
+                    console.info("Update page \"" + pageData.title + "\" ...");
                     return [4 /*yield*/, updateConfluencePage(currentPage, pageData, newContent, config, auth)];
                 case 4:
                     _a.sent();
@@ -282,6 +287,6 @@ function md2confluence(configPath, force) {
 exports.md2confluence = md2confluence;
 function generateConfig(configPath) {
     configPath = configPath || path.join("markdown-to-confluence.json");
-    fs.writeFileSync(configPath, "{\n  \"baseUrl\": \"YOUR_BASE_URL\",\n  \"user\": \"YOUR_USERNAME\",\n  \"pass\": \"YOUR_PASSWORD\",\n  \"prefix\": \"This document is automatically generated. Please don't edit it directly!\",\n  \"pages\": [\n    {\n      \"pageId\": \"1234567890\",\n      \"file\": \"README.md\",\n      \"title\": \"Optional title in the confluence page\"\n    }\n  ]\n}\n");
+    fs.writeFileSync(configPath, "{\n  \"baseUrl\": \"YOUR_BASE_URL\",\n  \"user\": \"YOUR_USERNAME\",\n  \"pass\": \"YOUR_PASSWORD\",\n  \"cachePath\": \"build\",\n  \"prefix\": \"This document is automatically generated. Please don't edit it directly!\",\n  \"pages\": [\n    {\n      \"pageId\": \"1234567890\",\n      \"file\": \"README.md\",\n      \"title\": \"Optional title in the confluence page\"\n    }\n  ]\n}\n");
 }
 exports.generateConfig = generateConfig;
