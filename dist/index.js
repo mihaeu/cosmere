@@ -53,13 +53,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
+var ConfluenceRenderer_1 = __importDefault(require("./ConfluenceRenderer"));
 var axios = require("axios");
 var axiosFile = require("axios-file");
 var inquirer = require("inquirer");
-var markdown2confluence = require("markdown2confluence");
 var path = require("path");
+var marked = require("marked");
 function readConfigFromFile(configPath) {
     configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
     if (!fs.existsSync(configPath)) {
@@ -70,7 +74,7 @@ function readConfigFromFile(configPath) {
     for (var i in config.pages) {
         config.pages[i].file = fs.existsSync(config.pages[i].file)
             ? config.pages[i].file
-            : path.resolve(path.dirname(configPath) + '/' + config.pages[i].file);
+            : path.resolve(path.dirname(configPath) + "/" + config.pages[i].file);
     }
     config.configPath = configPath;
     return config;
@@ -157,7 +161,9 @@ function deleteAttachments(pageData, config, auth) {
                 case 0: return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", auth)];
                 case 1:
                     attachments = _a.sent();
-                    attachments.data.results.forEach(function (attachment) { return axios.delete("https://confluence.tngtech.com/rest/api/content/" + attachment.id, auth); });
+                    attachments.data.results.forEach(function (attachment) {
+                        return axios.delete("https://confluence.tngtech.com/rest/api/content/" + attachment.id, auth);
+                    });
                     return [2 /*return*/];
             }
         });
@@ -165,21 +171,20 @@ function deleteAttachments(pageData, config, auth) {
 }
 function updatePage(pageData, config, force) {
     return __awaiter(this, void 0, void 0, function () {
-        var fileData, mdWikiData, prefix, cachePath, tempFile, needsContentUpdate, fileContent, auth, newContent, attachments, currentPage;
+        var fileData, mdWikiData, cachePath, tempFile, needsContentUpdate, fileContent, auth, newContent, attachments, currentPage;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     console.debug("Starting to render \"" + pageData.file + "\"");
                     fileData = fs.readFileSync(pageData.file, { encoding: "utf8" });
-                    mdWikiData = markdown2confluence(fileData);
-                    prefix = config.prefix;
-                    if (prefix) {
-                        mdWikiData = "{info}" + prefix + "{info}\n\n" + mdWikiData;
+                    mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer_1.default() });
+                    if (config.prefix) {
+                        mdWikiData = "{info}" + config.prefix + "{info}\n\n" + mdWikiData;
                     }
                     cachePath = fs.existsSync(config.cachePath)
                         ? config.cachePath
-                        : path.resolve(path.dirname(config.configPath) + '/' + config.cachePath);
+                        : path.resolve(path.dirname(config.configPath) + "/" + config.cachePath);
                     if (!fs.existsSync(cachePath)) {
                         fs.mkdirSync(cachePath, { recursive: true });
                     }
@@ -213,15 +218,15 @@ function updatePage(pageData, config, force) {
                     attachments = newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g);
                     if (attachments) {
                         attachments
-                            .map(function (s) { return s.replace(/.*"(.+)".*/, '$1'); })
+                            .map(function (s) { return s.replace(/.*"(.+)".*/, "$1"); })
                             .filter(function (filename) { return fs.existsSync(filename); })
                             .forEach(function (filename) { return __awaiter(_this, void 0, void 0, function () {
                             var newFilename;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        newFilename = __dirname + '/../tmp/' + filename.replace('/..', '_').replace('/', '_');
-                                        fs.copyFileSync(__dirname + '/../' + filename, newFilename);
+                                        newFilename = __dirname + "/../tmp/" + filename.replace("/..", "_").replace("/", "_");
+                                        fs.copyFileSync(__dirname + "/../" + filename, newFilename);
                                         console.info("Uploading attachment " + filename + " for \"" + pageData.title + "\" ...");
                                         return [4 /*yield*/, uploadAttachment(newFilename, pageData, config, auth)];
                                     case 1:
@@ -230,7 +235,9 @@ function updatePage(pageData, config, force) {
                                 }
                             });
                         }); });
-                        newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, function (s) { return s.replace('/', '_'); });
+                        newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, function (s) {
+                            return s.replace("/", "_");
+                        });
                     }
                     console.info("Fetch current page for \"" + pageData.title + "\" ...");
                     return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
@@ -251,10 +258,10 @@ function uploadAttachment(filename, pageData, config, auth) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axiosFile(__assign({ url: config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", method: 'post', headers: {
-                            'X-Atlassian-Token': 'nocheck',
+                case 0: return [4 /*yield*/, axiosFile(__assign({ url: config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", method: "post", headers: {
+                            "X-Atlassian-Token": "nocheck",
                         }, data: {
-                            file: fs.createReadStream(filename)
+                            file: fs.createReadStream(filename),
                         } }, auth))];
                 case 1:
                     _a.sent();
