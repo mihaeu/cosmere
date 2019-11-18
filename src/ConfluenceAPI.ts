@@ -5,7 +5,18 @@ import * as fs from "fs";
 const axiosFile = require("axios-file");
 
 export class ConfluenceAPI {
-    constructor(private readonly baseUrl: string, private readonly authHeaders: AuthHeaders) {}
+    private readonly authHeaders: AuthHeaders;
+    private readonly baseUrl: string;
+
+    constructor(baseUrl: string, username: string, password: string) {
+        this.baseUrl = baseUrl;
+        this.authHeaders = {
+            auth: {
+                username: username,
+                password: password,
+            },
+        };
+    }
 
     async updateConfluencePage(pageId: string, newPage: any) {
         await axios.default.put(`${this.baseUrl}/content/${pageId}`, newPage, {
