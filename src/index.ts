@@ -1,128 +1,20 @@
 import * as fs from "fs";
 import ConfluenceRenderer from "./ConfluenceRenderer";
-import marked = require("marked");
-import * as inquirer from "inquirer";
-import * as axios from "axios";
 import * as path from "path";
+import { Config } from "./Config";
+import { Page } from "./Page";
+import { ConfigLoader } from "./ConfigLoader";
+import { ConfluenceAPI } from "./ConfluenceAPI";
+import marked = require("marked");
 
-const axiosFile = require("axios-file");
-
-type Page = {
-    pageId: string;
-    file: string;
-    title: string;
-};
-type Config = {
-    baseUrl: string;
-    cachePath: string;
-    user?: string;
-    pass?: string;
-    prefix: string;
-    pages: Page[];
-    configPath: string | null;
-};
-type AuthHeaders = {
-    auth: {
-        username: string;
-        password: string;
-    };
-};
-
-function readConfigFromFile(configPath: string | null): Config {
-    configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
-    if (!fs.existsSync(configPath!)) {
-        console.error(`File "${configPath}" not found!`);
-        process.exit(1);
-    }
-
-    let config = JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
-    for (const i in config.pages) {
-        config.pages[i].file = fs.existsSync(config.pages[i].file)
-            ? config.pages[i].file
-            : path.resolve(path.dirname(configPath) + "/" + config.pages[i].file);
-    }
-    config.configPath = configPath;
-    return config;
-}
-
-function overwriteAuthFromConfigWithEnvIfPresent(config: Config): Config {
-    config.user = process.env.CONFLUENCE_USERNAME || config.user;
-    config.pass = process.env.CONFLUENCE_PASSWORD || config.pass;
-    return config;
-}
-
-async function promptUserAndPassIfNotSet(config: Config): Promise<Config> {
-    const prompts = [];
-    if (!config.user) {
-        prompts.push({
-            type: "input",
-            name: "user",
-            message: "Your Confluence username:",
-        });
-    }
-
-    if (!config.pass) {
-        prompts.push({
-            type: "password",
-            name: "pass",
-            message: "Your Confluence password:",
-        });
-    }
-
-    const answers = await inquirer.prompt(prompts);
-    config.user = config.user || answers.user as string;
-    config.pass = config.pass || answers.pass as string;
-
-    return config;
-}
-
-async function convertToWikiFormat(config: Config, mdWikiData: string, auth: AuthHeaders) {
-    return await axios.default.post(
-        `${config.baseUrl}/contentbody/convert/storage`,
-        {
-            value: mdWikiData,
-            representation: "wiki",
-        },
-        {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            ...auth,
-        },
+function replacePlantUMLCodefenceWithConfluenceMacro(body: string) {
+    return body.replace(
+      /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
+      '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
     );
 }
 
-async function updateConfluencePage(
-    currentPage: any,
-    pageData: Page,
-    newContent: any,
-    config: Config,
-    auth: AuthHeaders,
-) {
-    currentPage.title = pageData.title;
-    currentPage.body = {
-        storage: {
-            value: newContent.data.value,
-            representation: "storage",
-        },
-    };
-    currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
-    await axios.default.put(`${config.baseUrl}/content/${pageData.pageId}`, currentPage, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        ...auth,
-    });
-}
-
-async function deleteAttachments(pageData: Page, config: Config, auth: AuthHeaders) {
-    const attachments = await axios.default.get(`${config.baseUrl}/content/${pageData.pageId}/child/attachment`, auth);
-    attachments.data.results.forEach((attachment: any) =>
-        axios.default.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, auth),
-    );
-}
-
-async function updatePage(pageData: Page, config: Config, force: boolean) {
+async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     console.debug(`Starting to render "${pageData.file}"`);
 
     const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
@@ -152,69 +44,61 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
         return;
     }
 
-    const auth = {
-        auth: {
-            username: config.user!,
-            password: config.pass!,
-        },
-    };
-
     console.info(`Converting "${pageData.title}" to wiki format ...`);
-    const newContent = await convertToWikiFormat(config, mdWikiData, auth);
-    newContent.data.value = newContent.data.value.replace(
-        /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
-        '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
-    );
+    const newContent = await confluenceAPI.convertToWikiFormat(mdWikiData);
+    newContent.data.value = replacePlantUMLCodefenceWithConfluenceMacro(newContent.data.value);
 
     console.info(`Deleting attachments for "${pageData.title}" ...`);
-    await deleteAttachments(pageData, config, auth);
+    await confluenceAPI.deleteAttachments(pageData.pageId);
 
     const attachments = newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g);
     if (attachments) {
         attachments
             .map((s: string) => s.replace(/.*"(.+)".*/, "$1"))
-            .filter((filename: string) => fs.existsSync(filename))
-            .forEach(async (filename: string) => {
-                const newFilename = __dirname + "/../tmp/" + filename.replace("/..", "_").replace("/", "_");
-                fs.copyFileSync(__dirname + "/../" + filename, newFilename);
-                console.info(`Uploading attachment ${filename} for "${pageData.title}" ...`);
-                await uploadAttachment(newFilename, pageData, config, auth);
-            });
+            .filter((filename: string) => fs.existsSync(filename));
+        for (const attachment of attachments) {
+            const newFilename = __dirname + "/../tmp/" + attachment.replace("/..", "_").replace("/", "_");
+            fs.copyFileSync(__dirname + "/../" + attachment, newFilename);
+
+            console.info(`Uploading attachment ${attachment} for "${pageData.title}" ...`);
+            await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
+        }
         newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
             s.replace("/", "_"),
         );
     }
 
     console.info(`Fetch current page for "${pageData.title}" ...`);
-    const currentPage = (await axios.default.get(`${config.baseUrl}/content/${pageData.pageId}`, auth)).data;
+    const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
+    confluencePage.title = pageData.title;
+    confluencePage.body = {
+        storage: {
+            value: newContent.data.value,
+            representation: "storage",
+        },
+    };
+    confluencePage.version.number = parseInt(confluencePage.version.number, 10) + 1;
 
     console.info(`Update page "${pageData.title}" ...`);
-    await updateConfluencePage(currentPage, pageData, newContent, config, auth);
+    await confluenceAPI.updateConfluencePage(pageData.pageId, confluencePage);
 
     fs.writeFileSync(tempFile, mdWikiData, "utf-8");
-    console.info(`"${currentPage.title}" saved in confluence.`);
-}
-
-async function uploadAttachment(filename: string, pageData: Page, config: Config, auth: AuthHeaders) {
-    await axiosFile({
-        url: `${config.baseUrl}/content/${pageData.pageId}/child/attachment`,
-        method: "post",
-        headers: {
-            "X-Atlassian-Token": "nocheck",
-        },
-        data: {
-            file: fs.createReadStream(filename),
-        },
-        ...auth,
-    });
+    console.info(`"${confluencePage.title}" saved in confluence.`);
 }
 
 export async function md2confluence(configPath: string | null, force: boolean = false) {
-    let config: Config = await promptUserAndPassIfNotSet(
-        overwriteAuthFromConfigWithEnvIfPresent(readConfigFromFile(configPath)),
-    );
+    const config: Config = await ConfigLoader.load(configPath);
 
-    config.pages.forEach(async (pageData: Page) => await updatePage(pageData, config, force));
+    const confluenceAPI = new ConfluenceAPI(config.baseUrl, {
+        auth: {
+            username: config.user!,
+            password: config.pass!,
+        },
+    });
+
+    for (const pageData of config.pages) {
+        await updatePage(confluenceAPI, pageData, config, force);
+    }
 }
 
 export function generateConfig(configPath: string | null) {
