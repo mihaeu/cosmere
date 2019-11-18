@@ -40,3 +40,5 @@ jspm_packages
 # Tags
 .tags
 tags
+
+dist
