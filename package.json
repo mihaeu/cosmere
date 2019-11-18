@@ -18,7 +18,8 @@
     "start": "npm run watch",
     "build": "tsc",
     "watch": "node_modules/typescript/bin/tsc --watch",
-    "fix": "node_modules/prettier/bin-prettier.js --write src/*.ts"
+    "fix": "node_modules/prettier/bin-prettier.js --write src/*.ts",
+    "release": "tsc && npm publish --dry-run"
   },
   "keywords": [
     "confluence",
