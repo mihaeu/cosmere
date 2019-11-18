@@ -127,10 +127,10 @@ var ConfluenceRenderer = /** @class */ (function (_super) {
         return "\n{code:\"" + ConfluenceRenderer.stringifyObject(params) + "}" + code + "{code}";
     };
     ConfluenceRenderer.stringifyObject = function (o) {
-        return Object.keys(o)
+        return (Object.keys(o)
             // @ts-ignore https://github.com/microsoft/TypeScript/issues/20503
             .map(function (key) { return key + "=" + o[key]; })
-            .join("|");
+            .join("|"));
     };
     ConfluenceRenderer.MAX_CODE_LINE = 20;
     return ConfluenceRenderer;

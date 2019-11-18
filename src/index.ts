@@ -125,9 +125,8 @@ async function deleteAttachments(pageData: Page, config: Config, auth: AuthHeade
 async function updatePage(pageData: Page, config: Config, force: boolean) {
     console.debug(`Starting to render "${pageData.file}"`);
 
-    let fileData = fs.readFileSync(pageData.file, { encoding: "utf8" });
+    const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
     let mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer() });
-
     if (config.prefix) {
         mdWikiData = `{info}${config.prefix}{info}\n\n${mdWikiData}`;
     }
@@ -219,9 +218,8 @@ export async function md2confluence(configPath: string | null, force: boolean = 
 }
 
 export function generateConfig(configPath: string | null) {
-    configPath = configPath || path.join("markdown-to-confluence.json");
     fs.writeFileSync(
-        configPath!,
+        configPath || path.join("markdown-to-confluence.json")!,
         `{
   "baseUrl": "YOUR_BASE_URL",
   "user": "YOUR_USERNAME",

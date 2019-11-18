@@ -134,9 +134,11 @@ h${level}. ${text}
     }
 
     private static stringifyObject(o: object) {
-        return Object.keys(o)
-            // @ts-ignore https://github.com/microsoft/TypeScript/issues/20503
-            .map(key => `${key}=${o[key]}`)
-            .join("|");
+        return (
+            Object.keys(o)
+                // @ts-ignore https://github.com/microsoft/TypeScript/issues/20503
+                .map(key => `${key}=${o[key]}`)
+                .join("|")
+        );
     }
 }

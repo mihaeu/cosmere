@@ -177,7 +177,8 @@ function updatePage(pageData, config, force) {
             switch (_a.label) {
                 case 0:
                     console.debug("Starting to render \"" + pageData.file + "\"");
-                    fileData = fs.readFileSync(pageData.file, { encoding: "utf8" });
+                    fileData = fs.readFileSync(pageData.file, { encoding: "utf8" })
+                        .replace(/\|[ ]*\|/g, '|&nbsp;|');
                     mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer_1.default() });
                     if (config.prefix) {
                         mdWikiData = "{info}" + config.prefix + "{info}\n\n" + mdWikiData;
@@ -293,7 +294,6 @@ function md2confluence(configPath, force) {
 }
 exports.md2confluence = md2confluence;
 function generateConfig(configPath) {
-    configPath = configPath || path.join("markdown-to-confluence.json");
-    fs.writeFileSync(configPath, "{\n  \"baseUrl\": \"YOUR_BASE_URL\",\n  \"user\": \"YOUR_USERNAME\",\n  \"pass\": \"YOUR_PASSWORD\",\n  \"cachePath\": \"build\",\n  \"prefix\": \"This document is automatically generated. Please don't edit it directly!\",\n  \"pages\": [\n    {\n      \"pageId\": \"1234567890\",\n      \"file\": \"README.md\",\n      \"title\": \"Optional title in the confluence page\"\n    }\n  ]\n}\n");
+    fs.writeFileSync(configPath || path.join("markdown-to-confluence.json"), "{\n  \"baseUrl\": \"YOUR_BASE_URL\",\n  \"user\": \"YOUR_USERNAME\",\n  \"pass\": \"YOUR_PASSWORD\",\n  \"cachePath\": \"build\",\n  \"prefix\": \"This document is automatically generated. Please don't edit it directly!\",\n  \"pages\": [\n    {\n      \"pageId\": \"1234567890\",\n      \"file\": \"README.md\",\n      \"title\": \"Optional title in the confluence page\"\n    }\n  ]\n}\n");
 }
 exports.generateConfig = generateConfig;

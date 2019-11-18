@@ -1,6 +1,6 @@
 {
   "name": "markdown-to-confluence-converter",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
@@ -16,8 +16,9 @@
   },
   "scripts": {
     "start": "npm run watch",
+    "build": "tsc",
     "watch": "node_modules/typescript/bin/tsc --watch",
-    "fix": "node_modules/prettier/bin-prettier.js --trailing-comma=all --print-width=120 --tab-width=4 --parser=typescript --write src/*.ts"
+    "fix": "node_modules/prettier/bin-prettier.js --write src/*.ts"
   },
   "keywords": [
     "confluence",
@@ -50,5 +51,10 @@
     "inquirer": "6.2.1",
     "marked": "^0.3.2",
     "prettier": "^1.19.1"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 4,
+    "printWidth": 120
   }
 }
