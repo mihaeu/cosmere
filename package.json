@@ -40,6 +40,7 @@
   },
   "homepage": "https://github.com/mihaeu/md2confluence#readme",
   "devDependencies": {
+    "@types/inquirer": "^6.5.0",
     "@types/marked": "^0.7.1",
     "@types/node": "^12.12.7",
     "typescript": "^3.7.2"

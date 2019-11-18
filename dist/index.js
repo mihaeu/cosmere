@@ -59,11 +59,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = __importStar(require("fs"));
 var ConfluenceRenderer_1 = __importDefault(require("./ConfluenceRenderer"));
-var axios = require("axios");
-var axiosFile = require("axios-file");
-var inquirer = require("inquirer");
-var path = require("path");
 var marked = require("marked");
+var inquirer = __importStar(require("inquirer"));
+var axios = __importStar(require("axios"));
+var path = __importStar(require("path"));
+var axiosFile = require("axios-file");
 function readConfigFromFile(configPath) {
     configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
     if (!fs.existsSync(configPath)) {
@@ -119,7 +119,7 @@ function convertToWikiFormat(config, mdWikiData, auth) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios.post(config.baseUrl + "/contentbody/convert/storage", {
+                case 0: return [4 /*yield*/, axios.default.post(config.baseUrl + "/contentbody/convert/storage", {
                         value: mdWikiData,
                         representation: "wiki",
                     }, __assign({ headers: {
@@ -143,7 +143,7 @@ function updateConfluencePage(currentPage, pageData, newContent, config, auth) {
                         },
                     };
                     currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
-                    return [4 /*yield*/, axios.put(config.baseUrl + "/content/" + pageData.pageId, currentPage, __assign({ headers: {
+                    return [4 /*yield*/, axios.default.put(config.baseUrl + "/content/" + pageData.pageId, currentPage, __assign({ headers: {
                                 "Content-Type": "application/json",
                             } }, auth))];
                 case 1:
@@ -158,11 +158,11 @@ function deleteAttachments(pageData, config, auth) {
         var attachments;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", auth)];
+                case 0: return [4 /*yield*/, axios.default.get(config.baseUrl + "/content/" + pageData.pageId + "/child/attachment", auth)];
                 case 1:
                     attachments = _a.sent();
                     attachments.data.results.forEach(function (attachment) {
-                        return axios.delete("https://confluence.tngtech.com/rest/api/content/" + attachment.id, auth);
+                        return axios.default.delete("https://confluence.tngtech.com/rest/api/content/" + attachment.id, auth);
                     });
                     return [2 /*return*/];
             }
@@ -177,8 +177,7 @@ function updatePage(pageData, config, force) {
             switch (_a.label) {
                 case 0:
                     console.debug("Starting to render \"" + pageData.file + "\"");
-                    fileData = fs.readFileSync(pageData.file, { encoding: "utf8" })
-                        .replace(/\|[ ]*\|/g, '|&nbsp;|');
+                    fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
                     mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer_1.default() });
                     if (config.prefix) {
                         mdWikiData = "{info}" + config.prefix + "{info}\n\n" + mdWikiData;
@@ -241,7 +240,7 @@ function updatePage(pageData, config, force) {
                         });
                     }
                     console.info("Fetch current page for \"" + pageData.title + "\" ...");
-                    return [4 /*yield*/, axios.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
+                    return [4 /*yield*/, axios.default.get(config.baseUrl + "/content/" + pageData.pageId, auth)];
                 case 3:
                     currentPage = (_a.sent()).data;
                     console.info("Update page \"" + pageData.title + "\" ...");

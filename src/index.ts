@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import ConfluenceRenderer from "./ConfluenceRenderer";
+import marked = require("marked");
+import * as inquirer from "inquirer";
+import * as axios from "axios";
+import * as path from "path";
 
-const axios = require("axios");
 const axiosFile = require("axios-file");
-const inquirer = require("inquirer");
-const path = require("path");
-const marked = require("marked");
 
 type Page = {
     pageId: string;
@@ -70,14 +70,14 @@ async function promptUserAndPassIfNotSet(config: Config): Promise<Config> {
     }
 
     const answers = await inquirer.prompt(prompts);
-    config.user = config.user || answers.user;
-    config.pass = config.pass || answers.pass;
+    config.user = config.user || answers.user as string;
+    config.pass = config.pass || answers.pass as string;
 
     return config;
 }
 
 async function convertToWikiFormat(config: Config, mdWikiData: string, auth: AuthHeaders) {
-    return await axios.post(
+    return await axios.default.post(
         `${config.baseUrl}/contentbody/convert/storage`,
         {
             value: mdWikiData,
@@ -107,7 +107,7 @@ async function updateConfluencePage(
         },
     };
     currentPage.version.number = parseInt(currentPage.version.number, 10) + 1;
-    await axios.put(`${config.baseUrl}/content/${pageData.pageId}`, currentPage, {
+    await axios.default.put(`${config.baseUrl}/content/${pageData.pageId}`, currentPage, {
         headers: {
             "Content-Type": "application/json",
         },
@@ -116,9 +116,9 @@ async function updateConfluencePage(
 }
 
 async function deleteAttachments(pageData: Page, config: Config, auth: AuthHeaders) {
-    const attachments = await axios.get(`${config.baseUrl}/content/${pageData.pageId}/child/attachment`, auth);
+    const attachments = await axios.default.get(`${config.baseUrl}/content/${pageData.pageId}/child/attachment`, auth);
     attachments.data.results.forEach((attachment: any) =>
-        axios.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, auth),
+        axios.default.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, auth),
     );
 }
 
@@ -186,7 +186,7 @@ async function updatePage(pageData: Page, config: Config, force: boolean) {
     }
 
     console.info(`Fetch current page for "${pageData.title}" ...`);
-    const currentPage = (await axios.get(`${config.baseUrl}/content/${pageData.pageId}`, auth)).data;
+    const currentPage = (await axios.default.get(`${config.baseUrl}/content/${pageData.pageId}`, auth)).data;
 
     console.info(`Update page "${pageData.title}" ...`);
     await updateConfluencePage(currentPage, pageData, newContent, config, auth);
