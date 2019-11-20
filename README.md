@@ -23,10 +23,29 @@ npm install --save-dev markdown-to-confluence-converter
 
 ### Create the `markdown-to-confluence.json` file
 
-It's mandatory. It looks like:
+It's mandatory and can be generated using:
 
 ```bash
 md2c generate-config [--config=<path>]
+```
+
+which produces:
+
+```json
+{
+  "baseUrl": "YOUR_BASE_URL",
+  "user": "YOUR_USERNAME",
+  "pass": "YOUR_PASSWORD",
+  "cachePath": "build",
+  "prefix": "This document is automatically generated. Please don't edit it directly!",
+  "pages": [
+    {
+      "pageId": "1234567890",
+      "file": "README.md",
+      "title": "Optional title in the confluence page"
+    }
+  ]
+}
 ```
 
 ### Use Environmental Variables to store username and password
