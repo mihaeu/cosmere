@@ -62,7 +62,6 @@ export class ConfluenceAPI {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                ...this.authHeaders,
             },
         );
     }
