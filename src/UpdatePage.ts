@@ -3,18 +3,17 @@ import ConfluenceRenderer from "./ConfluenceRenderer";
 import * as path from "path";
 import { Config } from "./Config";
 import { Page } from "./Page";
-import { ConfigLoader } from "./ConfigLoader";
 import { ConfluenceAPI } from "./ConfluenceAPI";
 import marked = require("marked");
 
 function replacePlantUMLCodefenceWithConfluenceMacro(body: string) {
     return body.replace(
-      /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
-      '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
+        /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
+        '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
     );
 }
 
-async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
+export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     console.debug(`Starting to render "${pageData.file}"`);
 
     const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
@@ -84,34 +83,4 @@ async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: 
 
     fs.writeFileSync(tempFile, mdWikiData, "utf-8");
     console.info(`"${confluencePage.title}" saved in confluence.`);
-}
-
-export async function md2confluence(configPath: string | null, force: boolean = false) {
-    const config: Config = await ConfigLoader.load(configPath);
-    const confluenceAPI = new ConfluenceAPI(config.baseUrl, config.user!, config.pass!);
-
-    for (const pageData of config.pages) {
-        await updatePage(confluenceAPI, pageData, config, force);
-    }
-}
-
-export function generateConfig(configPath: string | null) {
-    fs.writeFileSync(
-        configPath || path.join("markdown-to-confluence.json")!,
-        `{
-  "baseUrl": "YOUR_BASE_URL",
-  "user": "YOUR_USERNAME",
-  "pass": "YOUR_PASSWORD",
-  "cachePath": "build",
-  "prefix": "This document is automatically generated. Please don't edit it directly!",
-  "pages": [
-    {
-      "pageId": "1234567890",
-      "file": "README.md",
-      "title": "Optional title in the confluence page"
-    }
-  ]
-}
-`,
-    );
 }
