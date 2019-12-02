@@ -4,6 +4,7 @@ import * as path from "path";
 import { Config } from "./Config";
 import { Page } from "./Page";
 import { ConfluenceAPI } from "./ConfluenceAPI";
+import signale from "signale";
 import marked = require("marked");
 
 function replacePlantUMLCodefenceWithConfluenceMacro(body: string) {
@@ -13,8 +14,27 @@ function replacePlantUMLCodefenceWithConfluenceMacro(body: string) {
     );
 }
 
+function mkdir(cachePath: string) {
+    if (process.version.match(/^v\d\d\./)) {
+        fs.mkdirSync(cachePath, { recursive: true });
+    } else {
+        if (fs.existsSync(path.dirname(cachePath))) {
+            fs.mkdirSync(fs.existsSync(path.dirname(cachePath)) ? cachePath : path.dirname(cachePath));
+        } else {
+            mkdir(path.dirname(cachePath));
+            fs.mkdirSync(cachePath);
+        }
+    }
+}
+
+function getCachePath(config: Config) {
+    return path.isAbsolute(config.cachePath)
+      ? config.cachePath
+      : path.resolve(path.dirname(config.configPath!) + "/" + config.cachePath);
+}
+
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
-    console.debug(`Starting to render "${pageData.file}"`);
+    signale.start(`Starting to render "${pageData.file}"`);
 
     const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
     let mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer() });
@@ -22,11 +42,9 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         mdWikiData = `{info}${config.prefix}{info}\n\n${mdWikiData}`;
     }
 
-    const cachePath = fs.existsSync(config.cachePath)
-        ? config.cachePath
-        : path.resolve(path.dirname(config.configPath!) + "/" + config.cachePath);
+    const cachePath = getCachePath(config);
     if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath, { recursive: true });
+        mkdir(cachePath);
     }
     const tempFile = `${cachePath}/${pageData.pageId}`;
 
@@ -39,15 +57,15 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         }
     }
     if (!force && !needsContentUpdate) {
-        console.info(`No content update necessary for "${pageData.file}"`);
+        signale.success(`No content update necessary for "${pageData.file}"`);
         return;
     }
 
-    console.info(`Converting "${pageData.title}" to wiki format ...`);
+    signale.await(`Converting "${pageData.title}" to wiki format ...`);
     const newContent = await confluenceAPI.convertToWikiFormat(mdWikiData);
     newContent.data.value = replacePlantUMLCodefenceWithConfluenceMacro(newContent.data.value);
 
-    console.info(`Deleting attachments for "${pageData.title}" ...`);
+    signale.await(`Deleting attachments for "${pageData.title}" ...`);
     await confluenceAPI.deleteAttachments(pageData.pageId);
 
     const attachments = newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g);
@@ -59,7 +77,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
             const newFilename = __dirname + "/../tmp/" + attachment.replace("/..", "_").replace("/", "_");
             fs.copyFileSync(__dirname + "/../" + attachment, newFilename);
 
-            console.info(`Uploading attachment ${attachment} for "${pageData.title}" ...`);
+            signale.await(`Uploading attachment ${attachment} for "${pageData.title}" ...`);
             await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
         }
         newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
@@ -67,7 +85,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         );
     }
 
-    console.info(`Fetch current page for "${pageData.title}" ...`);
+    signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
     confluencePage.title = pageData.title;
     confluencePage.body = {
@@ -78,9 +96,9 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
     };
     confluencePage.version.number = parseInt(confluencePage.version.number, 10) + 1;
 
-    console.info(`Update page "${pageData.title}" ...`);
+    signale.await(`Update page "${pageData.title}" ...`);
     await confluenceAPI.updateConfluencePage(pageData.pageId, confluencePage);
 
     fs.writeFileSync(tempFile, mdWikiData, "utf-8");
-    console.info(`"${confluencePage.title}" saved in confluence.`);
+    signale.success(`"${confluencePage.title}" saved in confluence.`);
 }

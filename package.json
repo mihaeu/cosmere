@@ -1,13 +1,13 @@
 {
   "name": "markdown-to-confluence-converter",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
     "md2c": "bin/markdown-to-confluence"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=8"
   },
   "engineStrict": true,
   "files": [
@@ -48,6 +48,7 @@
     "@types/inquirer": "^6.5.0",
     "@types/marked": "^0.7.1",
     "@types/node": "^12.12.7",
+    "@types/signale": "^1.2.1",
     "typescript": "^3.7.2"
   },
   "dependencies": {
@@ -56,7 +57,8 @@
     "docopt": "^0.6.2",
     "inquirer": "6.2.1",
     "marked": "^0.3.2",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "signale": "^1.4.0"
   },
   "prettier": {
     "trailingComma": "all",

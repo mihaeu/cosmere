@@ -2,6 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { Config } from "./Config";
 import * as inquirer from "inquirer";
+import signale from "signale";
 
 export class ConfigLoader {
     static async load(configPath: string | null): Promise<Config> {
@@ -13,7 +14,7 @@ export class ConfigLoader {
     private static readConfigFromFile(configPath: string | null): Config {
         configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
         if (!fs.existsSync(configPath!)) {
-            console.error(`File "${configPath}" not found!`);
+            signale.fatal(`File "${configPath}" not found!`);
             process.exit(1);
         }
 

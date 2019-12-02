@@ -17,7 +17,7 @@ if (options['generate-config']) {
   require('../dist/MainCommand').default(options['--config'], options['--force'])
     .then()
     .catch(e  => {
-        console.error(e);
+        require('signale').fatal(e);
         process.exit(1);
       }
     );
