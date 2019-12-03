@@ -1,6 +1,7 @@
 import { AuthHeaders } from "./AuthHeaders";
 import * as axios from "axios";
 import * as fs from "fs";
+import signale from "signale";
 
 const axiosFile = require("axios-file");
 
@@ -32,23 +33,32 @@ export class ConfluenceAPI {
             `${this.baseUrl}/content/${pageId}/child/attachment`,
             this.authHeaders,
         );
-        attachments.data.results.forEach((attachment: any) =>
-            axios.default.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, this.authHeaders),
-        );
+        for (const attachment of attachments.data.results) {
+            try {
+                signale.await(`Deleting attachment "${attachment.title}" ...`);
+                await axios.default.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, this.authHeaders);
+            } catch (e) {
+                signale.error(`Deleting attachment "${attachment.title}" failed ...`);
+            }
+        }
     }
 
     async uploadAttachment(filename: string, pageId: string) {
-        await axiosFile({
-            url: `${this.baseUrl}/content/${pageId}/child/attachment`,
-            method: "post",
-            headers: {
-                "X-Atlassian-Token": "nocheck",
-            },
-            data: {
-                file: fs.createReadStream(filename),
-            },
-            ...this.authHeaders,
-        });
+        try {
+            await axiosFile({
+                url: `${this.baseUrl}/content/${pageId}/child/attachment`,
+                method: "post",
+                headers: {
+                    "X-Atlassian-Token": "nocheck",
+                },
+                data: {
+                    file: fs.createReadStream(filename),
+                },
+                ...this.authHeaders,
+            });
+        } catch (e) {
+            signale.error(`Uploading attachment "${filename}" failed ...`);
+        }
     }
 
     async convertToWikiFormat(mdWikiData: string) {
@@ -67,6 +77,6 @@ export class ConfluenceAPI {
     }
 
     async currentPage(pageId: string) {
-        return axios.default.get(`${this.baseUrl}/content/${pageId}`, this.authHeaders);
+        return axios.default.get(`${this.baseUrl}/content/${pageId}?expand=body.storage,version`, this.authHeaders);
     }
 }

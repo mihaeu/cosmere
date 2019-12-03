@@ -106,7 +106,7 @@ h${level}. ${text}
     }
 
     image(href: string, title: string, text: string) {
-        return "!" + href + "!";
+        return `\n!${href}!\n`;
     }
 
     table(header: string, body: string) {
@@ -125,8 +125,8 @@ h${level}. ${text}
     code(code: string, lang: string) {
         const params = {
             language: this.langMap.indexOf("lang") >= 0 ? lang.toLowerCase() : "none",
-            borderStyle: "solid",
             theme: "RDark",
+            borderStyle: "solid",
             linenumbers: true,
             collapse: code.split("\n").length > ConfluenceRenderer.MAX_CODE_LINE,
         };
