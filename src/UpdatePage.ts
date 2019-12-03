@@ -29,27 +29,26 @@ function mkdir(cachePath: string) {
 
 function getCachePath(config: Config) {
     return path.isAbsolute(config.cachePath)
-      ? config.cachePath
-      : path.resolve(path.dirname(config.configPath!) + "/" + config.cachePath);
+        ? config.cachePath
+        : path.resolve(path.dirname(config.configPath!) + "/" + config.cachePath);
 }
 
 function removeDynamicMacroId(s: string): string {
-    return s.replace(/ac:macro-id="[0-9a-f\-]+"/g, '');
+    return s.replace(/ac:macro-id="[0-9a-f\-]+"/g, "");
 }
 
 function isRemoteUpdateRequired(newContent: any, confluencePage: any): boolean {
     const local = removeDynamicMacroId(newContent.data.value)
-      .trim()
-      .replace(/&#39;/g, "'");
-    const remote = removeDynamicMacroId(confluencePage.body.storage.value)
-      .trim();
+        .trim()
+        .replace(/&#39;/g, "'");
+    const remote = removeDynamicMacroId(confluencePage.body.storage.value).trim();
     return local !== remote;
 }
 
 function extractAttachmentsFromPage(newContent: any): string[] {
     return (newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
-      .map((attachment: string) => attachment.replace(/.*"(.+)".*/, "$1"))
-      .filter((attachment: string) => !attachment.startsWith("http"));
+        .map((attachment: string) => attachment.replace(/.*"(.+)".*/, "$1"))
+        .filter((attachment: string) => !attachment.startsWith("http"));
 }
 
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
@@ -88,22 +87,21 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
 
     const attachments = extractAttachmentsFromPage(newContent);
     if (attachments) {
-        attachments.filter((filename: string) => !fs.existsSync(filename)).forEach((attachment: string) => {
-            signale.error(`Attachment "${attachment}" not found.`);
-        });
+        attachments
+            .filter((filename: string) => !fs.existsSync(filename))
+            .forEach((attachment: string) => {
+                signale.error(`Attachment "${attachment}" not found.`);
+            });
         for (const attachment of attachments) {
-            const newFilename = getCachePath(config) + "/" + attachment
-              .replace("/..", "_")
-              .replace("/", "_");
+            const newFilename = cachePath + "/" + attachment.replace("/..", "_").replace("/", "_");
             const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
             fs.copyFileSync(absoluteAttachmentPath, newFilename);
 
             signale.await(`Uploading attachment ${attachment} for "${pageData.title}" ...`);
             await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
         }
-        newContent.data.value = newContent.data.value.replace(
-          /<ri:attachment ri:filename=".+?"/g,
-          (s: string) => s.replace("/", "_"),
+        newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
+            s.replace("/", "_"),
         );
     }
 
