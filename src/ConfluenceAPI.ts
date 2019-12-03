@@ -36,7 +36,7 @@ export class ConfluenceAPI {
         for (const attachment of attachments.data.results) {
             try {
                 signale.await(`Deleting attachment "${attachment.title}" ...`);
-                await axios.default.delete(`https://confluence.tngtech.com/rest/api/content/${attachment.id}`, this.authHeaders);
+                await axios.default.delete(`${this.baseUrl}/content/${attachment.id}`, this.authHeaders);
             } catch (e) {
                 signale.error(`Deleting attachment "${attachment.title}" failed ...`);
             }

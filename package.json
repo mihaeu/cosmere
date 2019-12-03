@@ -1,6 +1,6 @@
 {
   "name": "markdown-to-confluence-converter",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Update confluence pages from your markdown files (like a README.md)",
   "main": "dist/index.js",
   "bin": {
