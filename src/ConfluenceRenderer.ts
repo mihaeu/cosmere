@@ -1,8 +1,6 @@
-import { Renderer, Slugger } from "marked";
+import { Renderer } from "marked";
 
 export default class ConfluenceRenderer extends Renderer {
-    private static readonly MAX_CODE_LINE = 20;
-
     private readonly langMap = [
         "bash",
         "html",
@@ -34,111 +32,16 @@ export default class ConfluenceRenderer extends Renderer {
         "html/xml",
     ];
 
-    paragraph(text: string) {
-        return text + "\n\n";
-    }
-
-    html(html: string) {
-        return html;
-    }
-
-    heading(text: string, level: 1 | 2 | 3 | 4 | 5 | 6, raw: string, slugger: Slugger): string {
-        return `
-
-h${level}. ${text}
-`;
-    }
-
-    strong(text: string) {
-        return `*${text}*`;
-    }
-
-    em(text: string) {
-        return `_${text}_`;
-    }
-
-    del(text: string) {
-        return `-${text}-`;
-    }
-
-    codespan(text: string) {
-        return `{{${text}}}`;
-    }
-
-    blockquote(quote: string) {
-        return `{quote}${quote}{quote}`;
-    }
-
-    br() {
-        return "\n";
-    }
-
-    hr() {
-        return "----";
-    }
-
-    link(href: string, title: string, text: string) {
-        let arr = [href];
-        if (text) {
-            arr.unshift(text);
-        }
-        return "[" + arr.join("|") + "]";
-    }
-
-    list(body: string, ordered: boolean, start: number) {
-        let arr = body
-            .trim()
-            .split("%%%")
-            .filter((line: string) => line);
-        let type = ordered ? "#" : "*";
-        return (
-            "\n" +
-            arr
-                .map((line: string) => {
-                    return type + " " + line.replace(/\n([*#])/g, "\n$1$1");
-                })
-                .join("\n")
-        );
-    }
-
-    listitem(text: string): string {
-        return "%%%" + text;
-    }
-
     image(href: string, title: string, text: string) {
-        return `\n!${href}!\n`;
-    }
-
-    table(header: string, body: string) {
-        return header + body + "\n";
-    }
-
-    tablerow(content: string): string {
-        return content + "\n";
-    }
-
-    tablecell(content: string, flags: any) {
-        let type = flags.header ? "||" : "|";
-        return type + content;
+        if (href.startsWith('http')) {
+            return `<ac:image><ri:url ri:value="${href}" /></ac:image>`;
+        }
+        return `<ac:image><ri:attachment ri:filename="${href}" /></ac:image>`;
     }
 
     code(code: string, lang: string) {
-        const params = {
-            language: this.langMap.indexOf("lang") >= 0 ? lang.toLowerCase() : "none",
-            theme: "RDark",
-            borderStyle: "solid",
-            linenumbers: true,
-            collapse: code.split("\n").length > ConfluenceRenderer.MAX_CODE_LINE,
-        };
-        return `\n{code:"${ConfluenceRenderer.stringifyObject(params)}}${code}{code}`;
-    }
-
-    private static stringifyObject(o: object) {
-        return (
-            Object.keys(o)
-                // @ts-ignore https://github.com/microsoft/TypeScript/issues/20503
-                .map(key => `${key}=${o[key]}`)
-                .join("|")
-        );
+        lang = this.langMap.indexOf("lang") >= 0 ? lang.toLowerCase() : "none";
+        return `<ac:structured-macro ac:name="code" ac:schema-version="1"><ac:parameter ac:name="&quot;language">${lang}</ac:parameter><ac:parameter ac:name="theme">RDark</ac:parameter><ac:parameter ac:name="borderStyle">solid</ac:parameter><ac:parameter ac:name="linenumbers">true</ac:parameter><ac:parameter ac:name="collapse">false</ac:parameter><ac:plain-text-body><![CDATA[${code}]]></ac:plain-text-body></ac:structured-macro>
+`;
     }
 }

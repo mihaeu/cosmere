@@ -20,9 +20,9 @@ export class ConfigLoader {
 
         let config = JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
         for (const i in config.pages) {
-            config.pages[i].file = fs.existsSync(config.pages[i].file)
-                ? config.pages[i].file
-                : path.resolve(path.dirname(configPath) + "/" + config.pages[i].file);
+            config.pages[i].file = path.isAbsolute(config.pages[i].file)
+              ? config.pages[i].file
+              : path.resolve(path.dirname(configPath) + "/" + config.pages[i].file);
         }
         config.configPath = configPath;
         return config;

@@ -7,13 +7,6 @@ import { ConfluenceAPI } from "./ConfluenceAPI";
 import signale from "signale";
 import marked = require("marked");
 
-function replacePlantUMLCodefenceWithConfluenceMacro(body: string) {
-    return body.replace(
-        /<ac:structured-macro ac:name="code"[\s\S]+?<ac:plain-text-body>(<!\[CDATA\[\s*?@startuml[\s\S]+?@enduml\s*?]]>)<\/ac:plain-text-body><\/ac:structured-macro>/,
-        '<ac:structured-macro ac:name="plantuml" ac:schema-version="1"><ac:parameter ac:name="atlassian-macro-output-type">INLINE</ac:parameter><ac:plain-text-body>$1</ac:plain-text-body></ac:structured-macro>',
-    );
-}
-
 function mkdir(cachePath: string) {
     if (process.version.match(/^v\d\d\./)) {
         fs.mkdirSync(cachePath, { recursive: true });
@@ -37,16 +30,16 @@ function removeDynamicMacroId(s: string): string {
     return s.replace(/ac:macro-id="[0-9a-f\-]+"/g, "");
 }
 
-function isRemoteUpdateRequired(newContent: any, confluencePage: any): boolean {
-    const local = removeDynamicMacroId(newContent.data.value)
+function isRemoteUpdateRequired(newContent: string, confluencePage: any): boolean {
+    const local = removeDynamicMacroId(newContent)
         .trim()
         .replace(/&#39;/g, "'");
     const remote = removeDynamicMacroId(confluencePage.body.storage.value).trim();
     return local !== remote;
 }
 
-function extractAttachmentsFromPage(newContent: any): string[] {
-    return (newContent.data.value.match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
+function extractAttachmentsFromPage(newContent: string): string[] {
+    return (newContent.match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
         .map((attachment: string) => attachment.replace(/.*"(.+)".*/, "$1"))
         .filter((attachment: string) => !attachment.startsWith("http"));
 }
@@ -57,7 +50,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
     const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
     let mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer() });
     if (config.prefix) {
-        mdWikiData = `{info}${config.prefix}{info}\n\n${mdWikiData}`;
+        mdWikiData = `<ac:structured-macro ac:name="info" ac:schema-version="1"><ac:rich-text-body><p>${config.prefix}</p></ac:rich-text-body></ac:structured-macro>\n\n${mdWikiData}`;
     }
 
     const cachePath = getCachePath(config);
@@ -79,16 +72,12 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         return;
     }
 
-    signale.await(`Converting "${pageData.title}" to wiki format ...`);
-    const newContent = await confluenceAPI.convertToWikiFormat(mdWikiData);
-    newContent.data.value = replacePlantUMLCodefenceWithConfluenceMacro(newContent.data.value);
-
     await confluenceAPI.deleteAttachments(pageData.pageId);
 
-    const attachments = extractAttachmentsFromPage(newContent);
+    const attachments = extractAttachmentsFromPage(mdWikiData);
     if (attachments) {
         attachments
-            .filter((filename: string) => !fs.existsSync(filename))
+            .filter((filename: string) => !fs.existsSync(path.resolve(path.dirname(pageData.file), filename)))
             .forEach((attachment: string) => {
                 signale.error(`Attachment "${attachment}" not found.`);
             });
@@ -100,18 +89,17 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
             signale.await(`Uploading attachment ${attachment} for "${pageData.title}" ...`);
             await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
         }
-        newContent.data.value = newContent.data.value.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
+        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
             s.replace("/", "_"),
         );
     }
-
     signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
-    if (isRemoteUpdateRequired(newContent, confluencePage)) {
+    if (isRemoteUpdateRequired(mdWikiData, confluencePage)) {
         confluencePage.title = pageData.title;
         confluencePage.body = {
             storage: {
-                value: newContent.data.value,
+                value: mdWikiData,
                 representation: "storage",
             },
         };
