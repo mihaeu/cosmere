@@ -44,10 +44,25 @@ function extractAttachmentsFromPage(newContent: string): string[] {
         .filter((attachment: string) => !attachment.startsWith("http"));
 }
 
+function extractTitle(fileData: string) {
+    const matches = fileData.match(/^# ?([^#.]+)/);
+    if (!matches) {
+        throw new Error('Missing title property in config and no title found in markdown.');
+    }
+    return [
+      matches[1],
+      fileData.replace(/^# .+/, '')
+    ];
+}
+
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     signale.start(`Starting to render "${pageData.file}"`);
 
-    const fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
+    let fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
+    if (!pageData.title) {
+        [pageData.title, fileData] = extractTitle(fileData);
+    }
+
     let mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer() });
     if (config.prefix) {
         mdWikiData = `<ac:structured-macro ac:name="info" ac:schema-version="1"><ac:rich-text-body><p>${config.prefix}</p></ac:rich-text-body></ac:structured-macro>\n\n${mdWikiData}`;
