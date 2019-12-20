@@ -3,8 +3,8 @@
 const docopt = require('docopt');
 const options = docopt.docopt(`
 Usage:
-  markdown-to-confluence [--force] [--config=<path>]
-  markdown-to-confluence generate-config [--config=<path>]
+  cosmere [--force] [--config=<path>]
+  cosmere generate-config [--config=<path>]
 
 Options:
   --force           always upload even if the file looks the same

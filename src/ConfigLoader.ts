@@ -12,7 +12,7 @@ export class ConfigLoader {
     }
 
     private static readConfigFromFile(configPath: string | null): Config {
-        configPath = path.resolve(configPath || path.join("markdown-to-confluence.json"));
+        configPath = path.resolve(configPath || path.join("cosmere.json"));
         if (!fs.existsSync(configPath!)) {
             signale.fatal(`File "${configPath}" not found!`);
             process.exit(1);

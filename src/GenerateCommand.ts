@@ -3,7 +3,7 @@ import * as path from "path";
 
 export default function(configPath: string | null) {
     fs.writeFileSync(
-        configPath || path.join("markdown-to-confluence.json")!,
+        configPath || path.join("cosmere.json")!,
         `{
   "baseUrl": "YOUR_BASE_URL",
   "user": "YOUR_USERNAME",

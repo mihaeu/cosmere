@@ -1,10 +1,10 @@
 {
-  "name": "markdown-to-confluence-converter",
-  "version": "0.10.0",
-  "description": "Update confluence pages from your markdown files (like a README.md)",
+  "name": "cosmere",
+  "version": "0.11.0",
+  "description": "Sync your markdown files to confluence.",
   "main": "dist/index.js",
   "bin": {
-    "md2c": "bin/markdown-to-confluence"
+    "cosmere": "bin/cosmere"
   },
   "engines": {
     "node": ">=8"
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mihaeu/md2confluence.git"
+    "url": "git+https://github.com/mihaeu/cosmere.git"
   },
   "scripts": {
     "start": "npm run watch",
@@ -27,23 +27,23 @@
   },
   "keywords": [
     "confluence",
-    "content confluence",
+    "sync confluence",
     "update page confluence",
     "update confluence",
     "readme to confluence",
     "page confluence",
+    "convert markdown",
     "markdown",
     "markdown wiki"
   ],
   "authors": [
-    "Jormar Arellano <jormar.arellano@gmail.com> (https://github.com/jormar)",
     "Michael Haeuslmann <michael.haeuslmann@gmail.com> (https://github.com/mihaeu)"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mihaeu/md2confluence/issues"
+    "url": "https://github.com/mihaeu/cosmere/issues"
   },
-  "homepage": "https://github.com/mihaeu/md2confluence#readme",
+  "homepage": "https://mihaeu.github.io/cosmere/",
   "devDependencies": {
     "@types/inquirer": "^6.5.0",
     "@types/marked": "^0.7.1",

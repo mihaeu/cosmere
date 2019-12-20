@@ -1,32 +1,35 @@
-# markdown-to-confluence
+# Cosmere
 
-Update confluence pages from your markdown files (like a README.md)
+Sync your markdown files to confluence.
 
 ## Usage
 
-### Install the package
-
-You can safely install it as a global package:
+### Global Installation
 
 ```bash
-npm install -g markdown-to-confluence-converter
-```
-This will allow you to use the command `md2c` anywhere.
+npm install -g cosmere
 
-But, it's intended to development environments and I recommend to install it as dev dependency:
+# or
 
-```bash
-npm install --save-dev markdown-to-confluence-converter
+yarn global add cosmere
 ```
 
-...and excecuting it as a npm script.
-
-### Create the `markdown-to-confluence.json` file
-
-It's mandatory and can be generated using:
+### Library
 
 ```bash
-md2c generate-config [--config=<path>]
+npm install --save-dev cosmere
+
+# or
+
+yarn add --dev cosmere
+```
+
+### Configuration
+
+To get started generate configuration using 
+
+```bash
+cosmere generate-config [--config=<path>]
 ```
 
 which produces:
@@ -48,42 +51,44 @@ which produces:
 }
 ```
 
-### Use Environmental Variables to store username and password
+### Continuous Integration
 
-If you wish to not use the config file to store your username and password, you may also use your Environmental Variables to do so. The name of the environmental variables must be as below:
+In most scenarios it is not recommended to store your credentials in the configuration file, because you will probably add it to your VCS. Instead it is recommended to provide the following environment variables in your build pipeline (GitLab CI, GitHub Actions, Jenkins, ...):
 
-```
+```ini
 CONFLUENCE_USER=YOUR_USERNAME
 CONFLUENCE_PASSWORD=YOUR_PASSWORD
-
-# or
-
- CONFLUENCE_USER=YOUR_USERNAME CONFLUENCE_PASSWORD=YOUR_PASSWORD markdown-to-confluence
 ```
 
-### Excecute as a node app
-
-You can use the command in the working directory (if it was installed globally):
+or add it in front of the command when executing locally (add a space in front of the command when using bash in order to not write the credentials to the bash history):
 
 ```bash
-md2c --help
+ CONFLUENCE_USER=YOUR_USERNAME CONFLUENCE_PASSWORD=YOUR_PASSWORD cosmere
 ```
 
-Or execute it from your node_modules in your working directory (installed locally):
+### Run
 
 ```bash
-node_modules/.bin/md2c
+# global installation
+cosmere --help
+
+# local installation with yarn
+yarn cosmere --hhelp
+
+# local installation with npm
+npm run cosmere --help
+
+# or plain
+node_modules/.bin/cosmere --help
 ```
 
-Or you can add this like a npm script in your package.json (recommended if it was installed as devDependencies):
+or create an alias:
 
-```javascript
+```json
 {
-  ...
   "scripts": {
-    "pushdoc": "md2c"
-  },
-  ...
+    "pushdoc": "cosmere"
+  }
 }
 ```
 
@@ -91,8 +96,19 @@ Or you can add this like a npm script in your package.json (recommended if it wa
 
 ### Custom certificates on Confluence instance
 
-Prepend `NODE_TLS_REJECT_UNAUTHORIZED=0` to your `md2c` call in order to not reject invalid certificates. This is risky and it's preferable to get proper certificates.
+Prepend `NODE_TLS_REJECT_UNAUTHORIZED=0` to your `cosmere` call in order to not reject invalid certificates. This is risky and it's preferable to get proper certificates.
 
 ## Need new features?
 
 Please, feel free to create any issues and pull request that you need.
+
+## History
+### md2confluence
+I had various scripts that stitched markdown files together and uploaded them. I forked [`md2confluence`](https://github.com/jormar/md2confluence) by [Jormar Arellano](https://github.com/jormar) and started playing around with that, but quickly noticed that many markdown files broke due to the conversion process (wiki -> storage instead of directly to storage).
+
+### Cosmere
+The project diverged from its original intent and so I decided to rename it. [Cosmere](https://coppermind.net/wiki/Cosmere) is the wonderful universe of various books written by [Brandon Sanderson](https://www.brandonsanderson.com/). If you are into fantasy I strongly recommend checking him out.  
+
+## License
+
+See [LICENSE](LICENSE).
