@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import ConfluenceRenderer from "./ConfluenceRenderer";
 import * as path from "path";
-import { Config } from "./Config";
-import { Page } from "./Page";
+import { Config } from "./types/Config";
+import { Page } from "./types/Page";
 import { ConfluenceAPI } from "./ConfluenceAPI";
 import signale from "signale";
 import marked = require("marked");

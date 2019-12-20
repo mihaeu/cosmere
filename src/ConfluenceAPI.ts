@@ -1,4 +1,4 @@
-import { AuthHeaders } from "./AuthHeaders";
+import { AuthHeaders } from "./types/AuthHeaders";
 import * as axios from "axios";
 import * as fs from "fs";
 import signale from "signale";

@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { Config } from "./Config";
+import { Config } from "./types/Config";
 import * as inquirer from "inquirer";
 import signale from "signale";
 

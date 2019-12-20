@@ -1,4 +1,4 @@
-import { Config } from "./Config";
+import { Config } from "./types/Config";
 import { ConfigLoader } from "./ConfigLoader";
 import { ConfluenceAPI } from "./ConfluenceAPI";
 import { updatePage } from "./UpdatePage";
