@@ -38,7 +38,11 @@
     "markdown wiki"
   ],
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.ts"
+    ]
   },
   "authors": [
     "Michael Haeuslmann <michael.haeuslmann@gmail.com> (https://github.com/mihaeu)"
