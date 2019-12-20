@@ -40,8 +40,14 @@ export default class ConfluenceRenderer extends Renderer {
     }
 
     code(code: string, lang: string) {
-        lang = this.langMap.indexOf("lang") >= 0 ? lang.toLowerCase() : "none";
-        return `<ac:structured-macro ac:name="code" ac:schema-version="1"><ac:parameter ac:name="&quot;language">${lang}</ac:parameter><ac:parameter ac:name="theme">RDark</ac:parameter><ac:parameter ac:name="borderStyle">solid</ac:parameter><ac:parameter ac:name="linenumbers">true</ac:parameter><ac:parameter ac:name="collapse">false</ac:parameter><ac:plain-text-body><![CDATA[${code}]]></ac:plain-text-body></ac:structured-macro>
-`;
+        lang = this.langMap.indexOf(lang) >= 0 ? lang.toLowerCase() : "none";
+        return '<ac:structured-macro ac:name="code" ac:schema-version="1">'
+          + `<ac:parameter ac:name="&quot;language">${lang}</ac:parameter>`
+          + '<ac:parameter ac:name="theme">RDark</ac:parameter>'
+          + '<ac:parameter ac:name="borderStyle">solid</ac:parameter>'
+          + '<ac:parameter ac:name="linenumbers">true</ac:parameter>'
+          + '<ac:parameter ac:name="collapse">false</ac:parameter>'
+          + `<ac:plain-text-body><![CDATA[${code}]]></ac:plain-text-body></ac:structured-macro>`
+          + "\n";
     }
 }
