@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.12.0] - 2019-12-23
+### Added
+- Print link to confluence page after successful upload
+
 ### Fixed
 - Set highlighting for known languages
+- Use only first line of title
+- Remote diff
 
 ## [0.11.0] - 2019-12-20
 ### Changed
@@ -39,7 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add backward compatibility for node 8 (`fs.mkdir`)
 
-[Unreleased]: https://github.com/mihaeu/md2confluence/compare/0.11.0...HEAD
+[Unreleased]: https://github.com/mihaeu/md2confluence/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/mihaeu/md2confluence/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/mihaeu/md2confluence/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/mihaeu/md2confluence/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/mihaeu/md2confluence/compare/0.8.1...0.9.0
