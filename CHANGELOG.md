@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1] - 2019-12-23
+### Fixed
+- Do not use newline for extracted title (fixes [#1](https://github.com/mihaeu/cosmere/issues/1))
+
 ## [0.12.0] - 2019-12-23
 ### Added
 - Print link to confluence page after successful upload
