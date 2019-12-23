@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.2] - 2019-12-23
+### Fixed
+- Print proper URL after successful upload
+
+
 ## [0.12.1] - 2019-12-23
 ### Fixed
 - Do not use newline for extracted title (fixes [#1](https://github.com/mihaeu/cosmere/issues/1))

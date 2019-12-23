@@ -127,7 +127,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
 
         fs.writeFileSync(tempFile, mdWikiData, "utf-8");
         signale.success(`"${confluencePage.title}" saved in confluence.`);
-        signale.success(`-> https://confluence.tngtech.com/pages/viewpage.action?pageId=${pageData.pageId}`);
+        signale.success(`-> ${config.baseUrl.replace('rest/api', '')}/pages/viewpage.action?pageId=${pageData.pageId}`);
     } else {
         signale.success(`No change in remote version for "${pageData.file}" detected, no update necessary`);
     }
