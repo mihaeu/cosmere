@@ -55,13 +55,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add backward compatibility for node 8 (`fs.mkdir`)
 
-[Unreleased]: https://github.com/mihaeu/md2confluence/compare/0.12.2...HEAD
-[0.12.2]: https://github.com/mihaeu/md2confluence/compare/0.12.1...0.12.2
-[0.12.1]: https://github.com/mihaeu/md2confluence/compare/0.12.0...0.12.1
-[0.12.0]: https://github.com/mihaeu/md2confluence/compare/0.11.0...0.12.0
-[0.11.0]: https://github.com/mihaeu/md2confluence/compare/0.10.0...0.11.0
-[0.10.0]: https://github.com/mihaeu/md2confluence/compare/0.9.0...0.10.0
-[0.9.0]: https://github.com/mihaeu/md2confluence/compare/0.8.1...0.9.0
-[0.8.1]: https://github.com/mihaeu/md2confluence/compare/0.8.0...0.8.1
-[0.8.0]: https://github.com/mihaeu/md2confluence/compare/0.7.0...0.8.0
-[0.7.0]: https://github.com/mihaeu/md2confluence/releases/tag/0.7.0
+[Unreleased]: https://github.com/mihaeu/cosmere/compare/0.12.2...HEAD
+[0.12.2]: https://github.com/mihaeu/cosmere/compare/0.12.1...0.12.2
+[0.12.1]: https://github.com/mihaeu/cosmere/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/mihaeu/cosmere/compare/0.11.0...0.12.0
+[0.11.0]: https://github.com/mihaeu/cosmere/compare/0.10.0...0.11.0
+[0.10.0]: https://github.com/mihaeu/cosmere/compare/0.9.0...0.10.0
+[0.9.0]: https://github.com/mihaeu/cosmere/compare/0.8.1...0.9.0
+[0.8.1]: https://github.com/mihaeu/cosmere/compare/0.8.0...0.8.1
+[0.8.0]: https://github.com/mihaeu/cosmere/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/mihaeu/cosmere/releases/tag/0.7.0
