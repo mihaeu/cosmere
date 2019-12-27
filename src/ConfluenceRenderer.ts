@@ -39,8 +39,10 @@ export default class ConfluenceRenderer extends Renderer {
         return `<ac:image><ri:attachment ri:filename="${href}" /></ac:image>`;
     }
 
-    code(code: string, lang: string) {
-        lang = this.langMap.indexOf(lang.toLowerCase()) >= 0 ? lang.toLowerCase() : "none";
+    private readonly DEFAULT_LANGUAGE_FOR_CODE_BLOCK = "none";
+
+    code(code: string, lang: string = this.DEFAULT_LANGUAGE_FOR_CODE_BLOCK) {
+        lang = this.langMap.indexOf(lang.toLowerCase()) >= 0 ? lang.toLowerCase() : this.DEFAULT_LANGUAGE_FOR_CODE_BLOCK;
         return (
             '<ac:structured-macro ac:name="code" ac:schema-version="1">' +
             `<ac:parameter ac:name="&quot;language">${lang}</ac:parameter>` +

@@ -4,7 +4,7 @@ import { Page } from "../src/types/Page";
 import { Config } from "../src/types/Config";
 
 describe("UpdatePage", () => {
-  it("fails", () => {
+  it.skip("fails", () => {
     const pageData: Page = {
       pageId: "123456789",
       file: "/dev/null"
