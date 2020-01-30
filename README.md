@@ -69,7 +69,7 @@ which produces:
 In most scenarios it is not recommended to store your credentials in the configuration file, because you will probably add it to your VCS. Instead it is recommended to provide the following environment variables in your build pipeline (GitLab CI, GitHub Actions, Jenkins, ...):
 
 ```ini
-CONFLUENCE_USER=YOUR_USERNAME
+CONFLUENCE_USERNAME=YOUR_USERNAME
 CONFLUENCE_PASSWORD=YOUR_PASSWORD
 ```
 
