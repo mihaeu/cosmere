@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2020-07-04
+### Fixed
+- Added retry for a weird confluence bug where the first attempt would result in a 501 response, and the second one works
+
 ## [0.12.3] - 2019-12-27
 ### Fixed
 - Bug where error was thrown if not language was supplied for language block
@@ -58,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add backward compatibility for node 8 (`fs.mkdir`)
 
-[Unreleased]: https://github.com/mihaeu/cosmere/compare/0.12.3...HEAD
+[Unreleased]: https://github.com/mihaeu/cosmere/compare/0.13.0...HEAD
+[0.13.0]: https://github.com/mihaeu/cosmere/compare/0.12.3...0.13.0
 [0.12.3]: https://github.com/mihaeu/cosmere/compare/0.12.2...0.12.3
 [0.12.2]: https://github.com/mihaeu/cosmere/compare/0.12.1...0.12.2
 [0.12.1]: https://github.com/mihaeu/cosmere/compare/0.12.0...0.12.1

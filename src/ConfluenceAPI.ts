@@ -1,7 +1,7 @@
-import { AuthHeaders } from "./types/AuthHeaders";
-import axios from "axios";
-import * as fs from "fs";
-import signale from "signale";
+import { AuthHeaders } from './types/AuthHeaders';
+import axios from 'axios';
+import * as fs from 'fs';
+import signale from 'signale';
 
 export class ConfluenceAPI {
     private readonly authHeaders: AuthHeaders;
@@ -18,12 +18,17 @@ export class ConfluenceAPI {
     }
 
     async updateConfluencePage(pageId: string, newPage: any) {
-        await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, {
+        const config = {
             headers: {
                 "Content-Type": "application/json",
             },
             ...this.authHeaders,
-        });
+        };
+        try {
+            await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, config);
+        } catch (e) {
+            await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, config);
+        }
     }
 
     async deleteAttachments(pageId: string) {
