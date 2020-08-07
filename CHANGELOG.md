@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.2] - 2020-07-07
+### Fixed
+- Upgrade dependencies in order to fix vulnerabilities
+
 ## [0.13.1] - 2020-07-06
 ### Fixed
-- Moved jest and prettiert to dev dependencies
+- Moved jest and prettier to dev dependencies
 
 ## [0.13.0] - 2020-07-04
 ### Fixed
