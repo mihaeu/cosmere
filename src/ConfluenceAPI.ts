@@ -1,7 +1,7 @@
-import { AuthHeaders } from './types/AuthHeaders';
-import axios from 'axios';
-import * as fs from 'fs';
-import signale from 'signale';
+import { AuthHeaders } from "./types/AuthHeaders";
+import axios from "axios";
+import * as fs from "fs";
+import signale from "signale";
 
 export class ConfluenceAPI {
     private readonly authHeaders: AuthHeaders;
@@ -27,6 +27,7 @@ export class ConfluenceAPI {
         try {
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, config);
         } catch (e) {
+            signale.await(`First attempt failed, retrying ...`);
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, config);
         }
     }

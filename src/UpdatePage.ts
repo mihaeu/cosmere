@@ -7,6 +7,19 @@ import { ConfluenceAPI } from "./ConfluenceAPI";
 import signale from "signale";
 import marked = require("marked");
 
+type ConfluencePage = {
+    title: string;
+    body: {
+        storage: {
+            value: string;
+            representation: "storage";
+        };
+    };
+    version: {
+        number: string;
+    };
+};
+
 function mkdir(cachePath: string) {
     if (process.version.match(/^v\d\d\./)) {
         fs.mkdirSync(cachePath, { recursive: true });
@@ -53,24 +66,74 @@ function extractTitle(fileData: string) {
     return [matches.groups.title, fileData.replace(h1MarkdownRegex, "")];
 }
 
-export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
-    signale.start(`Starting to render "${pageData.file}"`);
-
+function convertToWikiFormat(pageData: Page) {
     let fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
     if (!pageData.title) {
         [pageData.title, fileData] = extractTitle(fileData);
     }
 
-    let mdWikiData = marked(fileData, { renderer: new ConfluenceRenderer() });
-    if (config.prefix) {
-        mdWikiData =
-            '<ac:structured-macro ac:name="info" ac:schema-version="1">' +
-            "<ac:rich-text-body>" +
-            `<p>${config.prefix}</p>` +
-            "</ac:rich-text-body>" +
-            "</ac:structured-macro>\n\n" +
-            mdWikiData;
+    return marked(fileData, { renderer: new ConfluenceRenderer() });
+}
+
+async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
+    const attachments = extractAttachmentsFromPage(mdWikiData);
+    if (attachments) {
+        attachments
+            .filter((filename: string) => !fs.existsSync(path.resolve(path.dirname(pageData.file), filename)))
+            .forEach((attachment: string) => {
+                signale.error(`Attachment "${attachment}" not found.`);
+            });
+        for (const attachment of attachments) {
+            const newFilename = cachePath + "/" + attachment.replace("/..", "_").replace("/", "_");
+            const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
+            fs.copyFileSync(absoluteAttachmentPath, newFilename);
+
+            signale.await(`Uploading attachment "${attachment}" for "${pageData.title}" ...`);
+            await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
+        }
+        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace("/", "_"));
     }
+    return mdWikiData;
+}
+
+function increaseVersionNumber(versionNumber: string) {
+    return (parseInt(versionNumber, 10) + 1).toString();
+}
+
+async function sendChangedPage(
+    confluencePage: ConfluencePage,
+    pageData: Page,
+    mdWikiData: string | void | any,
+    confluenceAPI: ConfluenceAPI,
+) {
+    confluencePage.title = pageData.title ?? confluencePage.title;
+    confluencePage.body = {
+        storage: {
+            value: mdWikiData,
+            representation: "storage",
+        },
+    };
+    confluencePage.version.number = increaseVersionNumber(confluencePage.version.number);
+    signale.await(`Update page "${pageData.title}" ...`);
+    await confluenceAPI.updateConfluencePage(pageData.pageId, confluencePage);
+}
+
+function addPrefix(config: Config, mdWikiData: string) {
+    return config.prefix
+        ? `<ac:structured-macro ac:name="info" ac:schema-version="1">
+<ac:rich-text-body>
+<p>${config.prefix}</p>
+</ac:rich-text-body>
+</ac:structured-macro>
+
+${mdWikiData}`
+        : mdWikiData;
+}
+
+export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
+    signale.start(`Starting to render "${pageData.file}"`);
+    let mdWikiData = convertToWikiFormat(pageData);
+    mdWikiData = addPrefix(config, mdWikiData);
 
     const cachePath = getCachePath(config);
     if (!fs.existsSync(cachePath)) {
@@ -92,43 +155,19 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
     }
 
     await confluenceAPI.deleteAttachments(pageData.pageId);
-
-    const attachments = extractAttachmentsFromPage(mdWikiData);
-    if (attachments) {
-        attachments
-            .filter((filename: string) => !fs.existsSync(path.resolve(path.dirname(pageData.file), filename)))
-            .forEach((attachment: string) => {
-                signale.error(`Attachment "${attachment}" not found.`);
-            });
-        for (const attachment of attachments) {
-            const newFilename = cachePath + "/" + attachment.replace("/..", "_").replace("/", "_");
-            const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
-            fs.copyFileSync(absoluteAttachmentPath, newFilename);
-
-            signale.await(`Uploading attachment "${attachment}" for "${pageData.title}" ...`);
-            await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
-        }
-        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace("/", "_"));
-    }
+    mdWikiData = await updateAttachments(mdWikiData, pageData, cachePath, confluenceAPI);
     signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
-    if (isRemoteUpdateRequired(mdWikiData, confluencePage)) {
-        confluencePage.title = pageData.title;
-        confluencePage.body = {
-            storage: {
-                value: mdWikiData,
-                representation: "storage",
-            },
-        };
-        confluencePage.version.number = parseInt(confluencePage.version.number, 10) + 1;
-
-        signale.await(`Update page "${pageData.title}" ...`);
-        await confluenceAPI.updateConfluencePage(pageData.pageId, confluencePage);
-
-        fs.writeFileSync(tempFile, mdWikiData, "utf-8");
-        signale.success(`"${confluencePage.title}" saved in confluence.`);
-        signale.success(`-> ${config.baseUrl.replace('rest/api', '')}/pages/viewpage.action?pageId=${pageData.pageId}`);
-    } else {
+    if (!isRemoteUpdateRequired(mdWikiData, confluencePage)) {
         signale.success(`No change in remote version for "${pageData.file}" detected, no update necessary`);
+        return;
     }
+
+    await sendChangedPage(confluencePage, pageData, mdWikiData, confluenceAPI);
+
+    fs.writeFileSync(tempFile, mdWikiData, "utf-8");
+    const confluenceUrl = config.baseUrl.replace("rest/api", "").replace(/\/$/, "");
+    signale.success(
+        `"${confluencePage.title}" saved in confluence (${confluenceUrl}/pages/viewpage.action?pageId=${pageData.pageId}).`,
+    );
 }
