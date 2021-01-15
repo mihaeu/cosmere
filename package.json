@@ -40,7 +40,7 @@
   "jest": {
     "preset": "ts-jest",
     "collectCoverage": true,
-    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "testMatch": ["**/tests/**/*.test.ts"],
     "collectCoverageFrom": [
       "**/*.ts"
     ]
