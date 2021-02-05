@@ -72,7 +72,10 @@ function convertToWikiFormat(pageData: Page) {
         [pageData.title, fileData] = extractTitle(fileData);
     }
 
-    return marked(fileData, { renderer: new ConfluenceRenderer() });
+    return marked(fileData, {
+        renderer: new ConfluenceRenderer(),
+        xhtml: true,
+    });
 }
 
 async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
