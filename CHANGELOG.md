@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.13.2] - 2020-07-07
+## [0.13.2] - 2021-02-10
 ### Fixed
 - Upgrade dependencies in order to fix vulnerabilities
+- Write self-closing tags for Confluence compatibility (e.g. `<hr />`)
 
 ## [0.13.1] - 2020-07-06
 ### Fixed

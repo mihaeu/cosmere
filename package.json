@@ -1,6 +1,6 @@
 {
   "name": "cosmere",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Sync your markdown files to confluence.",
   "main": "dist/index.js",
   "bin": {
@@ -40,7 +40,9 @@
   "jest": {
     "preset": "ts-jest",
     "collectCoverage": true,
-    "testMatch": ["**/tests/**/*.test.ts"],
+    "testMatch": [
+      "**/tests/**/*.test.ts"
+    ],
     "collectCoverageFrom": [
       "**/*.ts"
     ]
