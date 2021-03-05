@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2021-03-05
+### Added
+- Support for rendering `<details>` blocks [as Confluence expand macros](https://confluence.atlassian.com/doc/expand-macro-223222352.html)
+
+## [0.13.3] - 2021-02-10
 ## [0.13.2] - 2021-02-10
 ### Fixed
 - Upgrade dependencies in order to fix vulnerabilities
@@ -71,7 +76,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add backward compatibility for node 8 (`fs.mkdir`)
 
-[Unreleased]: https://github.com/mihaeu/cosmere/compare/0.13.1...HEAD
+[Unreleased]: https://github.com/mihaeu/cosmere/compare/0.14.0...HEAD
+[0.14.0]: https://github.com/mihaeu/cosmere/compare/0.13.3...0.14.0
+[0.13.3]: https://github.com/mihaeu/cosmere/compare/0.13.2...0.13.3
+[0.13.2]: https://github.com/mihaeu/cosmere/compare/0.13.1...0.13.2
 [0.13.1]: https://github.com/mihaeu/cosmere/compare/0.13.0...0.13.1
 [0.13.0]: https://github.com/mihaeu/cosmere/compare/0.12.3...0.13.0
 [0.12.3]: https://github.com/mihaeu/cosmere/compare/0.12.2...0.12.3

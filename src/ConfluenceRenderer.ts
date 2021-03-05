@@ -1,4 +1,4 @@
-import { Renderer } from "marked";
+import marked, { Renderer } from "marked";
 
 export default class ConfluenceRenderer extends Renderer {
     private readonly langMap = [
@@ -31,6 +31,35 @@ export default class ConfluenceRenderer extends Renderer {
         "puml",
         "html/xml",
     ];
+
+    private static hasDetailsBlock(html: string): boolean {
+        return !!html.match(/<details>([\s\S]*)<\/details>/);
+    }
+
+    private static renderDetailsBlock(html: string): string {
+        const summary = html.match(/<summary>([\s\S]*)<\/summary>/)?.[1] ?? 'Click here to expand ...'
+        const contentWithoutSummaryTags = html
+            .replace(/<summary>([\s\S]*)<\/summary>/, '')
+            .replace(/<\/?details>/g, '');
+        const content =
+            marked(
+                contentWithoutSummaryTags, {
+                    renderer: new ConfluenceRenderer(),
+                    xhtml: true,
+                });
+
+        return '<ac:structured-macro ac:name="expand">'
+            + '<ac:parameter ac:name="title">' + summary + '</ac:parameter>'
+            + '<ac:rich-text-body>' + content + '</ac:rich-text-body>'
+            + '</ac:structured-macro>';
+    }
+
+    html(html: string): string {
+        if (ConfluenceRenderer.hasDetailsBlock(html)) {
+            return ConfluenceRenderer.renderDetailsBlock(html);
+        }
+        return super.html(html);
+    }
 
     image(href: string, title: string, text: string) {
         if (href.startsWith("http")) {
