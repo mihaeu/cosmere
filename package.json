@@ -23,7 +23,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "fix": "prettier --write src/*.ts",
-    "release": "tsc && npm publish --dry-run",
+    "release": "tsc && np --help",
     "test": "jest"
   },
   "keywords": [
@@ -63,7 +63,8 @@
     "jest": "^26.6.3",
     "prettier": "^1.19.1",
     "ts-jest": "^26.4.4",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "np": "^7.4.0"
   },
   "dependencies": {
     "axios": "^0.21.1",

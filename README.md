@@ -115,6 +115,18 @@ Prepend `NODE_TLS_REJECT_UNAUTHORIZED=0` to your `cosmere` call in order to not 
 
 Please, feel free to create any issues and pull request that you need.
 
+## Release
+
+1. Add feature/fix bugs etc.
+2. Document changes in [`CHANGELOG.md`](CHANGELOG.md) (with the new [version](https://semver.org/))
+3. Commit everything
+4. Push/merge to main
+5. Run
+    ```bash
+    yarn release
+    yarn np <major|minor|patch>
+    ```
+
 ## History
 ### md2confluence
 I had various scripts that stitched markdown files together and uploaded them. I forked [`md2confluence`](https://github.com/jormar/md2confluence) by [Jormar Arellano](https://github.com/jormar) and started playing around with that, but quickly noticed that many markdown files broke due to the conversion process (wiki -> storage instead of directly to storage).
