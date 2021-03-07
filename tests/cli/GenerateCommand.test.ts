@@ -1,4 +1,4 @@
-import GenerateCommand from "../src/GenerateCommand";
+import GenerateCommand from "../../src/cli/GenerateCommand";
 import * as os from "os";
 import * as fs from "fs";
 

@@ -1,7 +1,7 @@
-import { Config } from "./types/Config";
-import { ConfigLoader } from "./ConfigLoader";
-import { ConfluenceAPI } from "./ConfluenceAPI";
-import { updatePage } from "./UpdatePage";
+import { Config } from "../types/Config";
+import { ConfigLoader } from "../ConfigLoader";
+import { ConfluenceAPI } from "../api/ConfluenceAPI";
+import { updatePage } from "../UpdatePage";
 
 export default async function(configPath: string | null, force: boolean = false) {
     const config: Config = await ConfigLoader.load(configPath);

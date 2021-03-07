@@ -1,5 +1,5 @@
-import { ConfluenceAPI } from "../src/ConfluenceAPI";
-import axios from 'axios';
+import { ConfluenceAPI } from "../../src/api/ConfluenceAPI";
+import axios from "axios";
 import { mocked } from "ts-jest/utils";
 
 jest.mock('axios');

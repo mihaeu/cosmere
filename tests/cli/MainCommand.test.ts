@@ -1,4 +1,4 @@
-import MainCommand from "../src/MainCommand";
+import MainCommand from "../../src/cli/MainCommand";
 
 describe("MainCommand", () => {
   it.skip("fails", () => {
