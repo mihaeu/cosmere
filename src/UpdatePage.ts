@@ -133,9 +133,21 @@ ${mdWikiData}`
         : mdWikiData;
 }
 
+function addToc(config: Config, mdWikiData: string) {
+    return config.addToc
+        ? `<ac:structured-macro ac:name="toc" ac:schema-version="1">
+  <ac:parameter ac:name="outline">true</ac:parameter>
+</ac:structured-macro>
+
+
+${mdWikiData}`
+        : mdWikiData;
+}
+
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     signale.start(`Starting to render "${pageData.file}"`);
     let mdWikiData = convertToWikiFormat(pageData);
+    mdWikiData = addToc(config, mdWikiData);
     mdWikiData = addPrefix(config, mdWikiData);
 
     const cachePath = getCachePath(config);

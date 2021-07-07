@@ -8,4 +8,5 @@ export type Config = {
     prefix: string;
     pages: Page[];
     configPath: string | null;
+    addToc?: boolean;
 };
