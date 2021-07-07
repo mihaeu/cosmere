@@ -136,7 +136,7 @@ ${mdWikiData}`
 function addToc(config: Config, mdWikiData: string) {
     return config.addToc
         ? `<ac:structured-macro ac:name="toc" ac:schema-version="1">
-  <ac:parameter ac:name="outline">true</ac:parameter>
+  <ac:parameter ac:name="outline">${config.tocOutline}</ac:parameter>
 </ac:structured-macro>
 
 

@@ -9,4 +9,5 @@ export type Config = {
     pages: Page[];
     configPath: string | null;
     addToc?: boolean;
+    tocOutline?: boolean;
 };
