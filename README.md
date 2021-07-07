@@ -54,7 +54,8 @@ which produces:
   "pass": "YOUR_PASSWORD",
   "cachePath": "build",
   "prefix": "This document is automatically generated. Please don't edit it directly!", 
-  "addToc": true,
+  "addToc": true, 
+  "tocOutline": false,
   "pages": [
     {
       "pageId": "1234567890",
