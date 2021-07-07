@@ -53,12 +53,16 @@ which produces:
   "user": "YOUR_USERNAME",
   "pass": "YOUR_PASSWORD",
   "cachePath": "build",
-  "prefix": "This document is automatically generated. Please don't edit it directly!",
+  "prefix": "This document is automatically generated. Please don't edit it directly!", 
+  "addToc": true, 
+  "tocOutline": false,
   "pages": [
     {
       "pageId": "1234567890",
       "file": "README.md",
-      "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead"
+      "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead",
+      "addToc": true,
+      "tocOutline": false
     }
   ]
 }

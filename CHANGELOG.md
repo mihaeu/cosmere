@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2021-07-07
+### Added
+- Support for rendering table of contents (TOC) [as Confluence macros](https://confluence.atlassian.com/doc/table-of-contents-macro-182682099.html)
+
 ## [0.14.0] - 2021-03-05
 ### Added
 - Support for rendering `<details>` blocks [as Confluence expand macros](https://confluence.atlassian.com/doc/expand-macro-223222352.html)
