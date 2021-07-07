@@ -133,10 +133,22 @@ ${mdWikiData}`
         : mdWikiData;
 }
 
-function addToc(config: Config, mdWikiData: string) {
-    return config.addToc
+export function shouldAddToc(config: Config, pageData: Page): Boolean {
+    return (pageData.addToc === undefined)
+        ? (config.addToc === undefined) ? false : config.addToc
+        : pageData.addToc;
+}
+
+export function shouldActivateTocOutline(config: Config, pageData: Page): Boolean {
+  return (pageData.tocOutline === undefined)
+    ? (config.tocOutline === undefined) ? false : config.tocOutline
+    : pageData.tocOutline;
+}
+
+export function addToc(config: Config, pageData: Page, mdWikiData: string) {
+    return shouldAddToc(config, pageData)
         ? `<ac:structured-macro ac:name="toc" ac:schema-version="1">
-  <ac:parameter ac:name="outline">${config.tocOutline || false}</ac:parameter>
+  <ac:parameter ac:name="outline">${shouldActivateTocOutline(config, pageData)}</ac:parameter>
 </ac:structured-macro>
 
 
@@ -147,7 +159,7 @@ ${mdWikiData}`
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     signale.start(`Starting to render "${pageData.file}"`);
     let mdWikiData = convertToWikiFormat(pageData);
-    mdWikiData = addToc(config, mdWikiData);
+    mdWikiData = addToc(config, pageData, mdWikiData);
     mdWikiData = addPrefix(config, mdWikiData);
 
     const cachePath = getCachePath(config);

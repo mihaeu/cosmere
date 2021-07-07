@@ -16,7 +16,9 @@ export default function(configPath: string | null) {
     {
       "pageId": "1234567890",
       "file": "README.md",
-      "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead"
+      "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead",
+      "addToc": true,
+      "tocOutline": false
     }
   ]
 }
