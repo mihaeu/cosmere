@@ -53,7 +53,8 @@ which produces:
   "user": "YOUR_USERNAME",
   "pass": "YOUR_PASSWORD",
   "cachePath": "build",
-  "prefix": "This document is automatically generated. Please don't edit it directly!",
+  "prefix": "This document is automatically generated. Please don't edit it directly!", 
+  "addToc": true,
   "pages": [
     {
       "pageId": "1234567890",
