@@ -87,14 +87,16 @@ async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: 
                 signale.error(`Attachment "${attachment}" not found.`);
             });
         for (const attachment of attachments) {
-            const newFilename = cachePath + "/" + attachment.replace("/..", "_").replace("/", "_");
+            const newFilename = cachePath + "/" + attachment.replace(/(\.\.|\/)/g, "_");
             const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
             fs.copyFileSync(absoluteAttachmentPath, newFilename);
 
             signale.await(`Uploading attachment "${attachment}" for "${pageData.title}" ...`);
             await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
         }
-        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace("/", "_"));
+        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
+            s.replace(/(\.\.|\/)/g, "_"),
+        );
     }
     return mdWikiData;
 }
