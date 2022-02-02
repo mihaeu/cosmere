@@ -3,40 +3,74 @@ import * as fs from "fs";
 import { Config } from "./types/Config";
 import * as inquirer from "inquirer";
 import signale from "signale";
+import { FileConfig } from "./types/FileConfig";
+
+type AuthOptions = {
+    user?: string;
+    pass?: string;
+    personalAccessToken?: string;
+};
 
 export class ConfigLoader {
     static async load(configPath: string | null): Promise<Config> {
-        return await ConfigLoader.promptUserAndPassIfNotSet(
-            ConfigLoader.overwriteAuthFromConfigWithEnvIfPresent(ConfigLoader.readConfigFromFile(configPath)),
+        const fileConfig = ConfigLoader.readConfigFromFile(configPath);
+        const authOptions = await ConfigLoader.promptUserAndPassIfNotSet(
+            ConfigLoader.useAuthOptionsFromEnvIfPresent(ConfigLoader.authOptionsFromFileConfig(fileConfig)),
         );
+        return ConfigLoader.createConfig(fileConfig, ConfigLoader.createAuthorizationToken(authOptions));
     }
 
-    private static readConfigFromFile(configPath: string | null): Config {
+    private static readConfigFromFile(configPath: string | null, authorizationToken?: string): FileConfig {
         configPath = path.resolve(configPath || path.join("cosmere.json"));
         if (!fs.existsSync(configPath!)) {
             signale.fatal(`File "${configPath}" not found!`);
             process.exit(1);
         }
 
-        let config = JSON.parse(fs.readFileSync(configPath!, "utf8")) as Config;
+        let config = JSON.parse(fs.readFileSync(configPath!, "utf8")) as Omit<FileConfig, "configPath">;
         for (const i in config.pages) {
             config.pages[i].file = path.isAbsolute(config.pages[i].file)
                 ? config.pages[i].file
                 : path.resolve(path.dirname(configPath) + "/" + config.pages[i].file);
         }
-        config.configPath = configPath;
-        return config;
+
+        return {
+            ...config,
+            configPath,
+        };
     }
 
-    private static overwriteAuthFromConfigWithEnvIfPresent(config: Config): Config {
-        config.user = process.env.CONFLUENCE_USERNAME || config.user;
-        config.pass = process.env.CONFLUENCE_PASSWORD || config.pass;
-        return config;
+    private static createAuthorizationToken(authOptions: AuthOptions): string {
+        if (authOptions.personalAccessToken) {
+            return `Bearer ${authOptions.personalAccessToken}`;
+        }
+
+        if (authOptions.user && authOptions.user.length > 0 && authOptions.pass && authOptions.pass.length > 0) {
+            const encodedBasicToken = Buffer.from(`${authOptions.user}:${authOptions.pass}`).toString("base64");
+            return `Basic ${encodedBasicToken}`;
+        }
+
+        signale.fatal(
+            "Missing configuration! You must either provide a combination of your Confluence username and password or a personal access token.",
+        );
+        process.exit(2);
     }
 
-    private static async promptUserAndPassIfNotSet(config: Config): Promise<Config> {
+    private static useAuthOptionsFromEnvIfPresent(authOptions: AuthOptions): AuthOptions {
+        return {
+            user: process.env.CONFLUENCE_USERNAME || authOptions.user,
+            pass: process.env.CONFLUENCE_PASSWORD || authOptions.pass,
+            personalAccessToken: process.env.CONFLUENCE_PERSONAL_ACCESS_TOKEN || authOptions.personalAccessToken,
+        };
+    }
+
+    private static async promptUserAndPassIfNotSet(authOptions: AuthOptions): Promise<AuthOptions> {
+        if (authOptions.personalAccessToken && authOptions.personalAccessToken.length > 0) {
+            return authOptions;
+        }
+
         const prompts = [];
-        if (!config.user) {
+        if (!authOptions.user) {
             prompts.push({
                 type: "input",
                 name: "user",
@@ -44,7 +78,7 @@ export class ConfigLoader {
             });
         }
 
-        if (!config.pass) {
+        if (!authOptions.pass) {
             prompts.push({
                 type: "password",
                 name: "pass",
@@ -53,9 +87,29 @@ export class ConfigLoader {
         }
 
         const answers = await inquirer.prompt(prompts);
-        config.user = config.user || (answers.user as string);
-        config.pass = config.pass || (answers.pass as string);
+        return {
+            user: authOptions.user || (answers.user as string),
+            pass: authOptions.pass || (answers.pass as string),
+            personalAccessToken: authOptions.personalAccessToken,
+        };
+    }
 
-        return config;
+    private static authOptionsFromFileConfig(fileConfig: FileConfig): AuthOptions {
+        return {
+            user: fileConfig.user,
+            pass: fileConfig.pass,
+            personalAccessToken: fileConfig.personalAccessToken,
+        };
+    }
+
+    private static createConfig(fileConfig: FileConfig, authorizationToken: string): Config {
+        return {
+            baseUrl: fileConfig.baseUrl,
+            cachePath: fileConfig.cachePath,
+            prefix: fileConfig.prefix,
+            pages: fileConfig.pages,
+            configPath: fileConfig.configPath,
+            authorizationToken: authorizationToken,
+        };
     }
 }

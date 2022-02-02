@@ -37,21 +37,25 @@ export default class ConfluenceRenderer extends Renderer {
     }
 
     private static renderDetailsBlock(html: string): string {
-        const summary = html.match(/<summary>([\s\S]*)<\/summary>/)?.[1] ?? 'Click here to expand ...'
+        const summary = html.match(/<summary>([\s\S]*)<\/summary>/)?.[1] ?? "Click here to expand ...";
         const contentWithoutSummaryTags = html
-            .replace(/<summary>([\s\S]*)<\/summary>/, '')
-            .replace(/<\/?details>/g, '');
-        const content =
-            marked(
-                contentWithoutSummaryTags, {
-                    renderer: new ConfluenceRenderer(),
-                    xhtml: true,
-                });
+            .replace(/<summary>([\s\S]*)<\/summary>/, "")
+            .replace(/<\/?details>/g, "");
+        const content = marked(contentWithoutSummaryTags, {
+            renderer: new ConfluenceRenderer(),
+            xhtml: true,
+        });
 
-        return '<ac:structured-macro ac:name="expand">'
-            + '<ac:parameter ac:name="title">' + summary + '</ac:parameter>'
-            + '<ac:rich-text-body>' + content + '</ac:rich-text-body>'
-            + '</ac:structured-macro>';
+        return (
+            '<ac:structured-macro ac:name="expand">' +
+            '<ac:parameter ac:name="title">' +
+            summary +
+            "</ac:parameter>" +
+            "<ac:rich-text-body>" +
+            content +
+            "</ac:rich-text-body>" +
+            "</ac:structured-macro>"
+        );
     }
 
     html(html: string): string {

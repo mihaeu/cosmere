@@ -1,28 +1,26 @@
-import { AuthHeaders } from "../types/AuthHeaders";
 import axios from "axios";
 import * as fs from "fs";
 import signale from "signale";
 
 export class ConfluenceAPI {
-    private readonly authHeaders: AuthHeaders;
     private readonly baseUrl: string;
+    private readonly authHeader: {
+        Authorization: string;
+    };
 
-    constructor(baseUrl: string, username: string, password: string) {
+    constructor(baseUrl: string, authorizationToken: string) {
         this.baseUrl = baseUrl;
-        this.authHeaders = {
-            auth: {
-                username: username,
-                password: password,
-            },
+        this.authHeader = {
+            Authorization: authorizationToken,
         };
     }
 
     async updateConfluencePage(pageId: string, newPage: any) {
         const config = {
             headers: {
+                ...this.authHeader,
                 "Content-Type": "application/json",
             },
-            ...this.authHeaders,
         };
         try {
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, config);
@@ -33,11 +31,15 @@ export class ConfluenceAPI {
     }
 
     async deleteAttachments(pageId: string) {
-        const attachments = await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, this.authHeaders);
+        const attachments = await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, {
+            headers: this.authHeader,
+        });
         for (const attachment of attachments.data.results) {
             try {
                 signale.await(`Deleting attachment "${attachment.title}" ...`);
-                await axios.delete(`${this.baseUrl}/content/${attachment.id}`, this.authHeaders);
+                await axios.delete(`${this.baseUrl}/content/${attachment.id}`, {
+                    headers: this.authHeader,
+                });
             } catch (e) {
                 signale.error(`Deleting attachment "${attachment.title}" failed ...`);
             }
@@ -51,11 +53,11 @@ export class ConfluenceAPI {
                 method: "post",
                 headers: {
                     "X-Atlassian-Token": "nocheck",
+                    ...this.authHeader,
                 },
                 data: {
                     file: fs.createReadStream(filename),
                 },
-                ...this.authHeaders,
             });
         } catch (e) {
             signale.error(`Uploading attachment "${filename}" failed ...`);
@@ -63,6 +65,8 @@ export class ConfluenceAPI {
     }
 
     async currentPage(pageId: string) {
-        return axios.get(`${this.baseUrl}/content/${pageId}?expand=body.storage,version`, this.authHeaders);
+        return axios.get(`${this.baseUrl}/content/${pageId}?expand=body.storage,version`, {
+            headers: this.authHeader,
+        });
     }
 }

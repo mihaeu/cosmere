@@ -4,18 +4,19 @@ import { Page } from "../src/types/Page";
 import { Config } from "../src/types/Config";
 
 describe("UpdatePage", () => {
-  it.skip("fails", () => {
-    const pageData: Page = {
-      pageId: "123456789",
-      file: "/dev/null"
-    };
-    const config: Config = {
-      baseUrl: "string",
-      cachePath: "string",
-      prefix: "string",
-      pages: [],
-      configPath: null,
-    };
-    expect(updatePage(new ConfluenceAPI("", "", ""), pageData, config, false)).toBeFalsy();
-  });
+    it.skip("fails", () => {
+        const pageData: Page = {
+            pageId: "123456789",
+            file: "/dev/null",
+        };
+        const config: Config = {
+            baseUrl: "string",
+            cachePath: "string",
+            prefix: "string",
+            pages: [],
+            configPath: "...",
+            authorizationToken: "Bearer unbearable",
+        };
+        expect(updatePage(new ConfluenceAPI("", "Bearer unbearable"), pageData, config, false)).toBeFalsy();
+    });
 });

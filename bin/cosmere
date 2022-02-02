@@ -12,9 +12,9 @@ Options:
 `);
 
 if (options['generate-config']) {
-  require('../dist/src/GenerateCommand').default(options['--config']);
+  require('../dist/src/cli/GenerateCommand').default(options['--config']);
 } else {
-  require('../dist/src/MainCommand').default(options['--config'], options['--force'])
+  require('../dist/src/cli/MainCommand').default(options['--config'], options['--force'])
     .then()
     .catch(e  => {
         require('signale').fatal(e);

@@ -1,0 +1,13 @@
+{
+    "baseUrl": "https://confluence.custom.host/rest/api",
+    "user": "user",
+    "pass": "pass",
+    "prefix": "This document is automatically generated. Please don't edit it directly!",
+    "cachePath": "cache/",
+    "pages": [
+        {
+            "pageId": "123456789",
+            "file": "README.md"
+        }
+    ]
+}
