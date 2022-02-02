@@ -49,9 +49,10 @@ which produces:
 
 ```json
 {
-  "baseUrl": "YOUR_BASE_URL",
-  "user": "YOUR_USERNAME",
-  "pass": "YOUR_PASSWORD",
+  "baseUrl": "<your base URL>",
+  "user": "<your username>",
+  "pass": "<your password>",
+  "authToken": "<your auth token (can be set instead of username/password)>",
   "cachePath": "build",
   "prefix": "This document is automatically generated. Please don't edit it directly!",
   "pages": [
@@ -69,14 +70,22 @@ which produces:
 In most scenarios it is not recommended to store your credentials in the configuration file, because you will probably add it to your VCS. Instead it is recommended to provide the following environment variables in your build pipeline (GitLab CI, GitHub Actions, Jenkins, ...):
 
 ```ini
-CONFLUENCE_USERNAME=YOUR_USERNAME
-CONFLUENCE_PASSWORD=YOUR_PASSWORD
+CONFLUENCE_USERNAME="<your username>"
+CONFLUENCE_PASSWORD="<your password>"
+```
+
+or
+
+```ini
+CONFLUENCE_AUTH_TOKEN="<your auth token>"
 ```
 
 or add it in front of the command when executing locally (add a space in front of the command when using bash in order to not write the credentials to the bash history):
 
 ```bash
- CONFLUENCE_USER=YOUR_USERNAME CONFLUENCE_PASSWORD=YOUR_PASSWORD cosmere
+ CONFLUENCE_USER="<your username>" CONFLUENCE_PASSWORD="<your password>" cosmere
+# or
+ CONFLUENCE_AUTH_TOKEN="<your auth token>" cosmere
 ```
 
 ### Run

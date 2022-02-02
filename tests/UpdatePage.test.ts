@@ -10,12 +10,14 @@ describe("UpdatePage", () => {
       file: "/dev/null"
     };
     const config: Config = {
+      user: "",
+      pass: "",
       baseUrl: "string",
       cachePath: "string",
       prefix: "string",
       pages: [],
       configPath: null,
     };
-    expect(updatePage(new ConfluenceAPI("", "", ""), pageData, config, false)).toBeFalsy();
+    expect(updatePage(new ConfluenceAPI("", config), pageData, config, false)).toBeFalsy();
   });
 });
