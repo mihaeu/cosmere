@@ -57,6 +57,7 @@
   "homepage": "https://mihaeu.github.io/cosmere/",
   "devDependencies": {
     "@types/inquirer": "^6.5.0",
+    "@types/jest": "^27.4.0",
     "@types/marked": "^0.7.1",
     "@types/node": "^12.12.7",
     "@types/signale": "^1.2.1",
