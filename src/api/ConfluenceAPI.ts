@@ -36,17 +36,21 @@ export class ConfluenceAPI {
         })).data;
     }
 
+    async deleteAttachment(attachment: Attachment) {
+        try {
+            signale.await(`Deleting attachment "${attachment.title}" ...`);
+            await axios.delete(`${this.baseUrl}/content/${attachment.id}`, {
+                headers: this.authHeader,
+            });
+        } catch (e) {
+            signale.error(`Deleting attachment "${attachment.title}" failed ...`);
+        }
+    }
+
     async deleteAttachments(pageId: string) {
         const attachments = await this.getAttachments(pageId)
         for (const attachment of attachments.results) {
-            try {
-                signale.await(`Deleting attachment "${attachment.title}" ...`);
-                await axios.delete(`${this.baseUrl}/content/${attachment.id}`, {
-                    headers: this.authHeader,
-                });
-            } catch (e) {
-                signale.error(`Deleting attachment "${attachment.title}" failed ...`);
-            }
+            await this.deleteAttachment(attachment)
         }
     }
 

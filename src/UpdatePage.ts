@@ -86,9 +86,15 @@ async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: 
             .forEach((attachment: string) => {
                 signale.error(`Attachment "${attachment}" not found.`);
             });
+        const remoteAttachments = await confluenceAPI.getAttachments(pageData.pageId)
         for (const attachment of attachments) {
-            const newFilename = cachePath + "/" + attachment.replace(/(\.\.|\/)/g, "_");
+            let safeFilename = attachment.replace(/(\.\.|\/)/g, "_");
+            const newFilename = cachePath + "/" + safeFilename;
             const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
+            let size = fs.statSync(absoluteAttachmentPath).size;
+            if (remoteAttachments.results.some(attachment => attachment.title === safeFilename && attachment.extensions.fileSize === size)) {
+                continue;
+            }
             fs.copyFileSync(absoluteAttachmentPath, newFilename);
 
             signale.await(`Uploading attachment "${attachment}" for "${pageData.title}" ...`);
