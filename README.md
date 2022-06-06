@@ -6,14 +6,6 @@ Sync your markdown files to confluence.
 
 -   upload new versions only when necessary
 -   upload/delete local images as attachments
--   convert PlantUML code fence to Confluence PlantUML macro
-    ````
-    \```plantuml
-    @startuml
-    a --> b
-    @enduml
-    \```
-    ````
 
 ## Usage
 

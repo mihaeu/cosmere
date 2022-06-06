@@ -1,83 +1,83 @@
 {
-  "name": "cosmere",
-  "version": "0.14.1",
-  "description": "Sync your markdown files to confluence.",
-  "main": "dist/index.js",
-  "bin": {
-    "cosmere": "bin/cosmere"
-  },
-  "engines": {
-    "node": ">=8"
-  },
-  "engineStrict": true,
-  "files": [
-    "dist",
-    "bin"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mihaeu/cosmere.git"
-  },
-  "scripts": {
-    "start": "npm run watch",
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "fix": "prettier --write src/*.ts",
-    "release": "tsc && np --help",
-    "test": "jest"
-  },
-  "keywords": [
-    "confluence",
-    "sync confluence",
-    "update page confluence",
-    "update confluence",
-    "readme to confluence",
-    "page confluence",
-    "convert markdown",
-    "markdown",
-    "markdown wiki"
-  ],
-  "jest": {
-    "preset": "ts-jest",
-    "collectCoverage": true,
-    "testMatch": [
-      "**/tests/**/*.test.ts"
+    "name": "cosmere",
+    "version": "0.15.0",
+    "description": "Sync your markdown files to confluence.",
+    "main": "dist/index.js",
+    "bin": {
+        "cosmere": "bin/cosmere"
+    },
+    "engines": {
+        "node": ">=8"
+    },
+    "engineStrict": true,
+    "files": [
+        "dist",
+        "bin"
     ],
-    "collectCoverageFrom": [
-      "**/*.ts"
-    ]
-  },
-  "authors": [
-    "Michael Haeuslmann <michael.haeuslmann@gmail.com> (https://github.com/mihaeu)"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mihaeu/cosmere/issues"
-  },
-  "homepage": "https://mihaeu.github.io/cosmere/",
-  "devDependencies": {
-    "@types/inquirer": "^6.5.0",
-    "@types/jest": "^27.4.0",
-    "@types/marked": "^0.7.1",
-    "@types/node": "^12.12.7",
-    "@types/signale": "^1.2.1",
-    "jest": "^26.6.3",
-    "np": "^7.4.0",
-    "prettier": "^1.19.1",
-    "ts-jest": "^26.4.4",
-    "typescript": "^3.7.2"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "axios-file": "^1.0.16",
-    "docopt": "^0.6.2",
-    "inquirer": "6.2.1",
-    "marked": "^0.3.2",
-    "signale": "^1.4.0"
-  },
-  "prettier": {
-    "trailingComma": "all",
-    "tabWidth": 4,
-    "printWidth": 120
-  }
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mihaeu/cosmere.git"
+    },
+    "scripts": {
+        "start": "npm run watch",
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "fix": "prettier --write src/*.ts",
+        "release": "tsc && np --help",
+        "test": "jest"
+    },
+    "keywords": [
+        "confluence",
+        "sync confluence",
+        "update page confluence",
+        "update confluence",
+        "readme to confluence",
+        "page confluence",
+        "convert markdown",
+        "markdown",
+        "markdown wiki"
+    ],
+    "jest": {
+        "preset": "ts-jest",
+        "collectCoverage": true,
+        "testMatch": [
+            "**/tests/**/*.test.ts"
+        ],
+        "collectCoverageFrom": [
+            "**/*.ts"
+        ]
+    },
+    "authors": [
+        "Michael Haeuslmann <michael.haeuslmann@gmail.com> (https://github.com/mihaeu)"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/mihaeu/cosmere/issues"
+    },
+    "homepage": "https://mihaeu.github.io/cosmere/",
+    "devDependencies": {
+        "@types/inquirer": "^6.5.0",
+        "@types/jest": "^27.4.0",
+        "@types/marked": "^0.7.1",
+        "@types/node": "^12.12.7",
+        "@types/signale": "^1.2.1",
+        "jest": "^26.6.3",
+        "np": "^7.4.0",
+        "prettier": "^1.19.1",
+        "ts-jest": "^26.4.4",
+        "typescript": "^3.7.2"
+    },
+    "dependencies": {
+        "axios": "^0.21.1",
+        "axios-file": "^1.0.16",
+        "docopt": "^0.6.2",
+        "inquirer": "6.2.1",
+        "marked": "^0.3.2",
+        "signale": "^1.4.0"
+    },
+    "prettier": {
+        "trailingComma": "all",
+        "tabWidth": 4,
+        "printWidth": 120
+    }
 }

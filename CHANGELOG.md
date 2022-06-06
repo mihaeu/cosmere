@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2022-06-06
+
 ### Added
 
 -   Added config option `personalAccessToken` and environment variable `CONFLUENCE_PERSONAL_ACCESS_TOKEN` in order to support authentication using [personal access tokens](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html). (solves [#26](https://github.com/mihaeu/cosmere/issues/26))
