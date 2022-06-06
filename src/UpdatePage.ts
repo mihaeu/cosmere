@@ -5,7 +5,9 @@ import { Config } from "./types/Config";
 import { Page } from "./types/Page";
 import { ConfluenceAPI } from "./api/ConfluenceAPI";
 import signale from "signale";
+import { Picture } from "./Picture";
 import marked = require("marked");
+import { Attachment } from "./api/Attachment";
 
 type ConfluencePage = {
     title: string;
@@ -51,10 +53,26 @@ function isRemoteUpdateRequired(newContent: string, confluencePage: any): boolea
     return local !== remote;
 }
 
-function extractAttachmentsFromPage(newContent: string): string[] {
+function extractAttachmentsFromPage(pageData: Page, newContent: string): Picture[] {
     return (newContent.match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
         .map((attachment: string) => attachment.replace(/.*"(.+)".*/, "$1"))
-        .filter((attachment: string) => !attachment.startsWith("http"));
+        .filter((attachment: string) => !attachment.startsWith("http"))
+        .filter((attachment: string) => {
+            if (!fs.existsSync(path.resolve(path.dirname(pageData.file), attachment))) {
+                signale.error(`Attachment "${attachment}" not found.`);
+                return false;
+            }
+            return true;
+        })
+        .map(attachment => {
+            const originalAbsolutePath = path.resolve(path.dirname(pageData.file), attachment);
+            return {
+                originalPath: attachment,
+                originalAbsolutePath,
+                originalSize: fs.statSync(originalAbsolutePath).size,
+                remoteFileName: attachment.replace(/(\.\.|\/)/g, "_"),
+            };
+        });
 }
 
 function extractTitle(fileData: string) {
@@ -78,32 +96,41 @@ function convertToWikiFormat(pageData: Page) {
     });
 }
 
-async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
-    const attachments = extractAttachmentsFromPage(mdWikiData);
-    if (attachments) {
-        attachments
-            .filter((filename: string) => !fs.existsSync(path.resolve(path.dirname(pageData.file), filename)))
-            .forEach((attachment: string) => {
-                signale.error(`Attachment "${attachment}" not found.`);
-            });
-        const remoteAttachments = await confluenceAPI.getAttachments(pageData.pageId)
-        for (const attachment of attachments) {
-            let safeFilename = attachment.replace(/(\.\.|\/)/g, "_");
-            const newFilename = cachePath + "/" + safeFilename;
-            const absoluteAttachmentPath = path.resolve(path.dirname(pageData.file), attachment);
-            let size = fs.statSync(absoluteAttachmentPath).size;
-            if (remoteAttachments.results.some(attachment => attachment.title === safeFilename && attachment.extensions.fileSize === size)) {
-                continue;
-            }
-            fs.copyFileSync(absoluteAttachmentPath, newFilename);
-
-            signale.await(`Uploading attachment "${attachment}" for "${pageData.title}" ...`);
-            await confluenceAPI.uploadAttachment(newFilename, pageData.pageId);
-        }
-        mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) =>
-            s.replace(/(\.\.|\/)/g, "_"),
-        );
+function mapLocalToRemoteAttachments(attachment: Picture, remoteAttachments: Attachment[]) {
+    const remoteAttachment = remoteAttachments.find(
+        remoteAttachment =>
+            remoteAttachment.title === attachment.remoteFileName &&
+            remoteAttachment.extensions.fileSize === attachment.originalSize,
+    );
+    if (remoteAttachment) {
+        attachment.remoteAttachmentId = remoteAttachment.id;
     }
+    return attachment;
+}
+
+async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
+    const remoteAttachments = (await confluenceAPI.getAttachments(pageData.pageId)).results;
+    let attachments = extractAttachmentsFromPage(pageData, mdWikiData).map(attachment =>
+        mapLocalToRemoteAttachments(attachment, remoteAttachments),
+    );
+    if (!attachments) {
+        return mdWikiData;
+    }
+
+    const upToDateAttachmentIds = attachments.map(attachment => attachment.remoteAttachmentId);
+    const outOfDateAttachments = remoteAttachments.filter(
+        remoteAttachment => !upToDateAttachmentIds.includes(remoteAttachment.id),
+    );
+    for (const outOfDateAttachment of outOfDateAttachments) {
+        await confluenceAPI.deleteAttachment(outOfDateAttachment);
+    }
+    for (const attachment of attachments.filter(attachment => !attachment.remoteAttachmentId)) {
+        fs.copyFileSync(attachment.originalAbsolutePath, attachment.remoteFileName);
+
+        signale.await(`Uploading attachment "${attachment.remoteFileName}" for "${pageData.title}" ...`);
+        await confluenceAPI.uploadAttachment(attachment.remoteFileName, pageData.pageId);
+    }
+    mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace(/(\.\.|\/)/g, "_"));
     return mdWikiData;
 }
 
@@ -158,16 +185,16 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
             needsContentUpdate = false;
         }
     }
+
     if (!force && !needsContentUpdate) {
         signale.success(`Local cache for "${pageData.file}" is up to date, no update necessary`);
         return;
     }
 
-    await confluenceAPI.deleteAttachments(pageData.pageId);
     mdWikiData = await updateAttachments(mdWikiData, pageData, cachePath, confluenceAPI);
     signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
-    if (!isRemoteUpdateRequired(mdWikiData, confluencePage)) {
+    if (!force && !isRemoteUpdateRequired(mdWikiData, confluencePage)) {
         signale.success(`No change in remote version for "${pageData.file}" detected, no update necessary`);
         return;
     }

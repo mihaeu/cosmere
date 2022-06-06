@@ -1,6 +1,8 @@
 import axios from "axios";
 import * as fs from "fs";
 import signale from "signale";
+import { GetAttachmentsResult } from "./GetAttachmentsResult";
+import { Attachment } from "./Attachment";
 
 export class ConfluenceAPI {
     private readonly baseUrl: string;
@@ -31,9 +33,11 @@ export class ConfluenceAPI {
     }
 
     async getAttachments(pageId: string): Promise<GetAttachmentsResult> {
-        return (await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, {
-            headers: this.authHeader,
-        })).data;
+        return (
+            await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, {
+                headers: this.authHeader,
+            })
+        ).data;
     }
 
     async deleteAttachment(attachment: Attachment) {
@@ -44,13 +48,6 @@ export class ConfluenceAPI {
             });
         } catch (e) {
             signale.error(`Deleting attachment "${attachment.title}" failed ...`);
-        }
-    }
-
-    async deleteAttachments(pageId: string) {
-        const attachments = await this.getAttachments(pageId)
-        for (const attachment of attachments.results) {
-            await this.deleteAttachment(attachment)
         }
     }
 
@@ -77,30 +74,4 @@ export class ConfluenceAPI {
             headers: this.authHeader,
         });
     }
-}
-
-type Attachment = {
-    id: string,
-    title: string,
-    metadata: {
-        mediaType: string,
-        labels: {
-            results: [],
-            start: number,
-            limit: number,
-            size: number,
-        },
-    },
-    extensions: {
-        mediaType: string,
-        fileSize: number,
-        comment: string,
-    },
-}
-
-type GetAttachmentsResult =  {
-    results: Attachment[],
-    start: number,
-    limit: number,
-    size: number,
 }
