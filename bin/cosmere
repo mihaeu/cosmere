@@ -3,18 +3,19 @@
 const docopt = require('docopt');
 const options = docopt.docopt(`
 Usage:
-  cosmere [--force] [--config=<path>]
+  cosmere [--force] [--insecure] [--config=<path>]
   cosmere generate-config [--config=<path>]
 
 Options:
   --force           always upload even if the file looks the same
+  --insecure        disables certificate verification (!this makes the transfer insecure!)
   --config=<path>   specify the path to the config
 `);
 
 if (options['generate-config']) {
   require('../dist/src/cli/GenerateCommand').default(options['--config']);
 } else {
-  require('../dist/src/cli/MainCommand').default(options['--config'], options['--force'])
+  require('../dist/src/cli/MainCommand').default(options['--config'], options['--force'], options['--insecure'])
     .then()
     .catch(e  => {
         require('signale').fatal(e);

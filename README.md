@@ -118,7 +118,7 @@ or create an alias:
 
 ### Custom certificates on Confluence instance
 
-Prepend `NODE_TLS_REJECT_UNAUTHORIZED=0` to your `cosmere` call in order to not reject invalid certificates. This is risky and it's preferable to get proper certificates.
+Use the `--insecure` option for your `cosmere` call in order to not reject invalid certificates. This is risky, and it's preferable to get proper certificates.
 
 ## Need new features?
 

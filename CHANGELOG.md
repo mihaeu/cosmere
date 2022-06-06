@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   Added config option `personalAccessToken` and environment variable `CONFLUENCE_PERSONAL_ACCESS_TOKEN` in order to support authentication using [personal access tokens](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html). (solves [#26](https://github.com/mihaeu/cosmere/issues/26))
+-   Added `--insecure` flag in order to not have to use `NODE_TLS_REJECT_UNAUTHORIZED=0` in cases where it's needed.
+
+### Changed
+
+-   Pictures are now only uploaded if they differ in filename or size. Only pictures that do not match will be deleted remotely (previously all pictures were deleted, then all were uploaded).
+
+### Fixed
+
+-   Fixed cache check so that only real changes in files require an update.
 
 ## [0.14.1] - 2021-08-25
 

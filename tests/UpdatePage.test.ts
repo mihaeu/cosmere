@@ -17,6 +17,6 @@ describe("UpdatePage", () => {
             configPath: "...",
             authorizationToken: "Bearer unbearable",
         };
-        expect(updatePage(new ConfluenceAPI("", "Bearer unbearable"), pageData, config, false)).toBeFalsy();
+        expect(updatePage(new ConfluenceAPI("", "Bearer unbearable", false), pageData, config, false)).toBeFalsy();
     });
 });
