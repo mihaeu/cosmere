@@ -131,11 +131,9 @@ async function sendChangedPage(
 
 function addPrefix(config: Config, mdWikiData: string) {
     return config.prefix
-        ? `<ac:structured-macro ac:name="info" ac:schema-version="1">
-<ac:rich-text-body>
+        ? `<ac:structured-macro ac:name="info" ac:schema-version="1"><ac:rich-text-body>
 <p>${config.prefix}</p>
-</ac:rich-text-body>
-</ac:structured-macro>
+</ac:rich-text-body></ac:structured-macro>
 
 ${mdWikiData}`
         : mdWikiData;
