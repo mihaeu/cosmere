@@ -108,6 +108,20 @@ function mapLocalToRemoteAttachments(attachment: Picture, remoteAttachments: Att
     return attachment;
 }
 
+async function deleteOutOfDateAttachments(
+    attachments: Picture[],
+    remoteAttachments: Attachment[],
+    confluenceAPI: ConfluenceAPI,
+) {
+    const upToDateAttachmentIds = attachments.map(attachment => attachment.remoteAttachmentId);
+    const outOfDateAttachments = remoteAttachments.filter(
+        remoteAttachment => !upToDateAttachmentIds.includes(remoteAttachment.id),
+    );
+    for (const outOfDateAttachment of outOfDateAttachments) {
+        await confluenceAPI.deleteAttachment(outOfDateAttachment);
+    }
+}
+
 async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
     const remoteAttachments = (await confluenceAPI.getAttachments(pageData.pageId)).results;
     let attachments = extractAttachmentsFromPage(pageData, mdWikiData).map(attachment =>
@@ -117,13 +131,7 @@ async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: 
         return mdWikiData;
     }
 
-    const upToDateAttachmentIds = attachments.map(attachment => attachment.remoteAttachmentId);
-    const outOfDateAttachments = remoteAttachments.filter(
-        remoteAttachment => !upToDateAttachmentIds.includes(remoteAttachment.id),
-    );
-    for (const outOfDateAttachment of outOfDateAttachments) {
-        await confluenceAPI.deleteAttachment(outOfDateAttachment);
-    }
+    await deleteOutOfDateAttachments(attachments, remoteAttachments, confluenceAPI);
     for (const attachment of attachments.filter(attachment => !attachment.remoteAttachmentId)) {
         fs.copyFileSync(attachment.originalAbsolutePath, attachment.remoteFileName);
 
