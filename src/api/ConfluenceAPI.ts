@@ -30,11 +30,15 @@ export class ConfluenceAPI {
         }
     }
 
-    async deleteAttachments(pageId: string) {
-        const attachments = await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, {
+    async getAttachments(pageId: string): Promise<GetAttachmentsResult> {
+        return (await axios.get(`${this.baseUrl}/content/${pageId}/child/attachment`, {
             headers: this.authHeader,
-        });
-        for (const attachment of attachments.data.results) {
+        })).data;
+    }
+
+    async deleteAttachments(pageId: string) {
+        const attachments = await this.getAttachments(pageId)
+        for (const attachment of attachments.results) {
             try {
                 signale.await(`Deleting attachment "${attachment.title}" ...`);
                 await axios.delete(`${this.baseUrl}/content/${attachment.id}`, {
@@ -69,4 +73,30 @@ export class ConfluenceAPI {
             headers: this.authHeader,
         });
     }
+}
+
+type Attachment = {
+    id: string,
+    title: string,
+    metadata: {
+        mediaType: string,
+        labels: {
+            results: [],
+            start: number,
+            limit: number,
+            size: number,
+        },
+    },
+    extensions: {
+        mediaType: string,
+        fileSize: number,
+        comment: string,
+    },
+}
+
+type GetAttachmentsResult =  {
+    results: Attachment[],
+    start: number,
+    limit: number,
+    size: number,
 }
