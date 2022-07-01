@@ -207,9 +207,8 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         return;
     }
 
-    await sendChangedPage(confluencePage, pageData, mdWikiData, confluenceAPI);
-
     fs.writeFileSync(tempFile, mdWikiData, "utf-8");
+    await sendChangedPage(confluencePage, pageData, mdWikiData, confluenceAPI);
     const confluenceUrl = config.baseUrl.replace("rest/api", "").replace(/\/$/, "");
     signale.success(
         `"${confluencePage.title}" saved in confluence (${confluenceUrl}/pages/viewpage.action?pageId=${pageData.pageId}).`,

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Write cache even if upload is not successful. This saves time and helps with debugging.
+
 ## [0.15.0] - 2022-06-06
 
 ### Added
@@ -130,7 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Add backward compatibility for node 8 (`fs.mkdir`)
 
-[unreleased]: https://github.com/mihaeu/cosmere/compare/0.14.1...HEAD
+[unreleased]: https://github.com/mihaeu/cosmere/compare/0.15.0...HEAD
+[0.15.0]: https://github.com/mihaeu/cosmere/compare/0.14.1...0.15.0
 [0.14.1]: https://github.com/mihaeu/cosmere/compare/0.14.0...0.14.1
 [0.14.0]: https://github.com/mihaeu/cosmere/compare/0.13.3...0.14.0
 [0.13.3]: https://github.com/mihaeu/cosmere/compare/0.13.2...0.13.3
