@@ -6,6 +6,7 @@ Sync your markdown files to confluence.
 
 -   upload new versions only when necessary
 -   upload/delete local images as attachments
+-   supports the original markdown spec and parts from [CommonMark](https://marked.js.org/#specifications) and [GitHub Flavored Markdown](https://marked.js.org/#specifications)
 
 ## Usage
 
