@@ -7,7 +7,7 @@ describe("GenerateCommand", () => {
         const path = os.tmpdir() + "/cosmere.json";
         GenerateCommand(path);
         expect(fs.readFileSync(path, "utf8")).toBe(`{
-  "baseUrl": "<your base URL>",
+  "baseUrl": "<your base url including /rest/api>",
   "user": "<your username>",
   "pass": "<your password>",
   "personalAccessToken": "<your personal access token (can be set instead of username/password)>",

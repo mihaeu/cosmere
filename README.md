@@ -41,7 +41,7 @@ which produces:
 
 ```json
 {
-    "baseUrl": "<your base URL>",
+    "baseUrl": "<your base url including /rest/api>",
     "user": "<your username>",
     "pass": "<your password>",
     "personalAccessToken": "<your personal access token (can be set instead of username/password)>",
