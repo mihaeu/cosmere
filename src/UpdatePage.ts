@@ -84,14 +84,14 @@ function extractTitle(fileData: string) {
     return [matches.groups.title, fileData.replace(h1MarkdownRegex, "")];
 }
 
-function convertToWikiFormat(pageData: Page) {
+function convertToWikiFormat(pageData: Page, config: Config) {
     let fileData = fs.readFileSync(pageData.file, { encoding: "utf8" }).replace(/\|[ ]*\|/g, "|&nbsp;|");
     if (!pageData.title) {
         [pageData.title, fileData] = extractTitle(fileData);
     }
 
     return marked(fileData, {
-        renderer: new ConfluenceRenderer(),
+        renderer: new ConfluenceRenderer({}, config, pageData),
         xhtml: true,
     });
 }
@@ -176,7 +176,7 @@ ${mdWikiData}`
 
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
     signale.start(`Starting to render "${pageData.file}"`);
-    let mdWikiData = convertToWikiFormat(pageData);
+    let mdWikiData = convertToWikiFormat(pageData, config);
     mdWikiData = addPrefix(config, mdWikiData);
 
     const cachePath = getCachePath(config);

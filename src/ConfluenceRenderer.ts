@@ -1,6 +1,20 @@
 import marked, { Renderer } from "marked";
+import { Config } from "./types/Config";
+import { Page } from "./types/Page";
+import * as path from "path";
 
 export default class ConfluenceRenderer extends Renderer {
+    private readonly config: Config;
+    private readonly page: Page;
+    readonly options: marked.MarkedOptions;
+
+    constructor(options: marked.MarkedOptions, config: Config, page: Page) {
+        super(options);
+        this.config = config;
+        this.options = options;
+        this.page = page;
+    }
+
     private readonly langMap = [
         "bash",
         "html",
@@ -36,13 +50,13 @@ export default class ConfluenceRenderer extends Renderer {
         return !!html.match(/<details>([\s\S]*)<\/details>/);
     }
 
-    private static renderDetailsBlock(html: string): string {
+    private renderDetailsBlock(html: string): string {
         const summary = html.match(/<summary>([\s\S]*)<\/summary>/)?.[1] ?? "Click here to expand ...";
         const contentWithoutSummaryTags = html
             .replace(/<summary>([\s\S]*)<\/summary>/, "")
             .replace(/<\/?details>/g, "");
         const content = marked(contentWithoutSummaryTags, {
-            renderer: new ConfluenceRenderer(),
+            renderer: new ConfluenceRenderer(this.options, this.config, this.page),
             xhtml: true,
         });
 
@@ -58,9 +72,27 @@ export default class ConfluenceRenderer extends Renderer {
         );
     }
 
+    link(href: string | null, title: string | null, text: string): string {
+        if (href) {
+            href = this.resolveLinks(href);
+        }
+        return super.link(href, title, text);
+    }
+
+    private resolveLinks(href: string): string {
+        const absolutePath = path.resolve(path.dirname(this.page.file), href);
+        const match = this.config.pages.find(page => page.file === absolutePath);
+        if (match) {
+            href = `${this.config.baseUrl.replace("rest/api", "").replace(/\/$/, "")}/pages/viewpage.action?pageId=${
+                match.pageId
+            }`;
+        }
+        return href;
+    }
+
     html(html: string): string {
         if (ConfluenceRenderer.hasDetailsBlock(html)) {
-            return ConfluenceRenderer.renderDetailsBlock(html);
+            return this.renderDetailsBlock(html);
         }
         return super.html(html);
     }
