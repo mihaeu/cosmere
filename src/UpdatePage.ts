@@ -175,7 +175,8 @@ ${mdWikiData}`
 }
 
 export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, config: Config, force: boolean) {
-    signale.start(`Starting to render "${pageData.file}"`);
+    const pagePathFromConfig = pageData.file.replace(path.dirname(config.configPath) + "/", "");
+    signale.start(`Starting to render "${pagePathFromConfig}"`);
     let mdWikiData = convertToWikiFormat(pageData, config);
     mdWikiData = addPrefix(config, mdWikiData);
 
@@ -195,7 +196,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
     }
 
     if (!force && !needsContentUpdate) {
-        signale.success(`Local cache for "${pageData.file}" is up to date, no update necessary`);
+        signale.success(`Local cache for "${pagePathFromConfig}" is up to date, no update necessary`);
         return;
     }
 
@@ -203,7 +204,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
     signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
     if (!force && !isRemoteUpdateRequired(mdWikiData, confluencePage)) {
-        signale.success(`No change in remote version for "${pageData.file}" detected, no update necessary`);
+        signale.success(`No change in remote version for "${pagePathFromConfig}" detected, no update necessary`);
         return;
     }
 

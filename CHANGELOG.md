@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Links to markdown files that are in the cosmere.json will now be rendered as Confluence links. (closes #12)
 -   Write cache even if upload is not successful. This saves time and helps with debugging.
+-   Print paths relative to the config file in the log output.
 
 ## [0.15.0] - 2022-06-06
 

@@ -22,7 +22,7 @@
         "start": "npm run watch",
         "build": "tsc",
         "watch": "tsc --watch",
-        "fix": "prettier --write */*.ts",
+        "fix": "prettier --write **/*.{ts,md,json}",
         "release": "tsc && np --help",
         "test": "jest"
     },
