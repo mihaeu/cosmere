@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2022-07-12
+
 ### Changed
 
 -   Links to markdown files that are in the cosmere.json will now be rendered as Confluence links. (closes #12)
