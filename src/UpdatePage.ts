@@ -89,9 +89,12 @@ function convertToWikiFormat(pageData: Page, config: Config) {
     if (!pageData.title) {
         [pageData.title, fileData] = extractTitle(fileData);
     }
+    const renderer = config.customRenderer
+        ? new config.customRenderer({}, config, pageData)
+        : new ConfluenceRenderer({}, config, pageData)
 
     return marked(fileData, {
-        renderer: new ConfluenceRenderer({}, config, pageData),
+        renderer,
         xhtml: true,
     });
 }

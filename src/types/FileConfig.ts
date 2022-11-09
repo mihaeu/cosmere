@@ -1,10 +1,6 @@
-import { Page } from "./Page";
+import { BaseConfig } from "./BaseConfig";
 
-export type FileConfig = {
-    baseUrl: string;
-    cachePath: string;
-    prefix: string;
-    pages: Page[];
+export type FileConfig = BaseConfig & {
     configPath: string;
     user?: string;
     pass?: string;

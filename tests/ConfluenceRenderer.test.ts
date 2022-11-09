@@ -1,5 +1,4 @@
 import ConfluenceRenderer from "../src/ConfluenceRenderer";
-import { Page } from "../src/types/Page";
 import { Config } from "../src/types/Config";
 
 describe("ConfluenceRenderer", () => {

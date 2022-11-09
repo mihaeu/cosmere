@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2022-11-08
+
+### Added
+
+-   Added capability of running Cosmere as a script library.
+-   Added support for custom renderers.
+
 ## [0.16.0] - 2022-07-12
 
 ### Changed
