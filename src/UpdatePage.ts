@@ -125,6 +125,13 @@ async function deleteOutOfDateAttachments(
     }
 }
 
+function cleanupLocalAttachments(attachments: Picture[]) {
+    for (const attachment of attachments.filter(attachment => fs.existsSync(attachment.remoteFileName))) {
+        fs.unlinkSync(attachment.remoteFileName);
+    }
+    signale.success('Local cleanup successful');
+}
+
 async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
     const remoteAttachments = (await confluenceAPI.getAttachments(pageData.pageId)).results;
     let attachments = extractAttachmentsFromPage(pageData, mdWikiData).map(attachment =>
@@ -141,6 +148,7 @@ async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: 
         signale.await(`Uploading attachment "${attachment.remoteFileName}" for "${pageData.title}" ...`);
         await confluenceAPI.uploadAttachment(attachment.remoteFileName, pageData.pageId);
     }
+    cleanupLocalAttachments(attachments);
     mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace(/(\.\.|\/)/g, "_"));
     return mdWikiData;
 }
