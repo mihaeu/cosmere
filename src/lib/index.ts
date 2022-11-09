@@ -8,7 +8,7 @@ const DEFAULTS = {
     insecure: false,
     force: false,
     fileRoot: process.cwd(),
-}
+};
 
 export default async function(configOptions: ObjectConfig) {
     const config: Config = await ObjectConfigLoader.load(Object.assign({}, DEFAULTS, configOptions));

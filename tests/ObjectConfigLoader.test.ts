@@ -1,7 +1,6 @@
 import { ObjectConfigLoader } from "../src/ObjectConfigLoader";
 
 describe("ObjectConfigLoader", () => {
-
     const objectConfigurationWithPersonalAccessToken = {
         baseUrl: "https://confluence.custom.host/rest/api",
         personalAccessToken: "unbearable",
@@ -11,12 +10,12 @@ describe("ObjectConfigLoader", () => {
         pages: [
             {
                 pageId: "123456789",
-                file: "./tests/README.md"
-            }
+                file: "./tests/README.md",
+            },
         ],
         insecure: false,
         force: false,
-    }
+    };
 
     const objectConfigurationWithUserPass = {
         baseUrl: "https://confluence.custom.host/rest/api",
@@ -28,17 +27,15 @@ describe("ObjectConfigLoader", () => {
         pages: [
             {
                 pageId: "123456789",
-                file: "./tests/README.md"
-            }
+                file: "./tests/README.md",
+            },
         ],
         insecure: false,
         force: false,
-    }
+    };
 
     it("should create bearer token from personal access token", async () => {
-        expect(
-            await ObjectConfigLoader.load(objectConfigurationWithPersonalAccessToken),
-        ).toEqual({
+        expect(await ObjectConfigLoader.load(objectConfigurationWithPersonalAccessToken)).toEqual({
             authorizationToken: "Bearer unbearable",
             configPath: __dirname,
             ...irrelevantConfigFields,

@@ -91,7 +91,7 @@ function convertToWikiFormat(pageData: Page, config: Config) {
     }
     const renderer = config.customRenderer
         ? new config.customRenderer({}, config, pageData)
-        : new ConfluenceRenderer({}, config, pageData)
+        : new ConfluenceRenderer({}, config, pageData);
 
     return marked(fileData, {
         renderer,
