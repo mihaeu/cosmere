@@ -1,10 +1,8 @@
-import { Page } from "./Page";
+import { BaseConfig } from "./BaseConfig";
+import { RendererConstructor } from "./RendererConstructor";
 
-export type Config = {
-    baseUrl: string;
-    cachePath: string;
-    prefix: string;
-    pages: Page[];
+export type Config = BaseConfig & {
     configPath: string;
     authorizationToken: string;
+    customRenderer?: RendererConstructor;
 };

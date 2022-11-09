@@ -7,6 +7,7 @@ Sync your markdown files to confluence.
 -   upload new versions only when necessary
 -   upload/delete local images as attachments
 -   supports the original markdown spec and parts from [CommonMark](https://marked.js.org/#specifications) and [GitHub Flavored Markdown](https://marked.js.org/#specifications)
+-   can be used as a CLI command or in a script
 
 ## Usage
 
@@ -105,6 +106,34 @@ or create an alias:
         "pushdoc": "cosmere"
     }
 }
+```
+
+## Using Cosmere as a library
+
+```js
+import cosmere from "cosmere/dist/src/lib";
+
+const config = {
+   "baseUrl": "<your base url including /rest/api>",
+   "user": "<your username>",
+   "pass": "<your password>",
+   "cachePath": "build",
+   "prefix": "This document is automatically generated. Please don't edit it directly!",
+   "insecure": false,
+   "force": false,
+   "fileRoot": '/usr/bin/myawesomefolder',
+   "pages": [
+      {
+         "pageId": "1234567890",
+         "file": "README.md",  // this path will be evaluated as fileRoot + file
+         "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead"
+      }
+   ],
+   customRenderer: MyNewAwesomeRenderer,
+}
+
+await cosmere(config);
+
 ```
 
 ## Troubleshooting

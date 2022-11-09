@@ -11,13 +11,13 @@ type AuthOptions = {
     personalAccessToken?: string;
 };
 
-export class ConfigLoader {
+export class FileConfigLoader {
     static async load(configPath: string | null): Promise<Config> {
-        const fileConfig = ConfigLoader.readConfigFromFile(configPath);
-        const authOptions = await ConfigLoader.promptUserAndPassIfNotSet(
-            ConfigLoader.useAuthOptionsFromEnvIfPresent(ConfigLoader.authOptionsFromFileConfig(fileConfig)),
+        const fileConfig = FileConfigLoader.readConfigFromFile(configPath);
+        const authOptions = await FileConfigLoader.promptUserAndPassIfNotSet(
+            FileConfigLoader.useAuthOptionsFromEnvIfPresent(FileConfigLoader.authOptionsFromFileConfig(fileConfig)),
         );
-        return ConfigLoader.createConfig(fileConfig, ConfigLoader.createAuthorizationToken(authOptions));
+        return FileConfigLoader.createConfig(fileConfig, FileConfigLoader.createAuthorizationToken(authOptions));
     }
 
     private static readConfigFromFile(configPath: string | null, authorizationToken?: string): FileConfig {
