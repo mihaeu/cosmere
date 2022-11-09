@@ -112,28 +112,42 @@ or create an alias:
 
 ```js
 import cosmere from "cosmere/dist/src/lib";
+import ConfluenceRenderer from "cosmere/dist/src/ConfluenceRenderer";
 
-const config = {
-   "baseUrl": "<your base url including /rest/api>",
-   "user": "<your username>",
-   "pass": "<your password>",
-   "cachePath": "build",
-   "prefix": "This document is automatically generated. Please don't edit it directly!",
-   "insecure": false,
-   "force": false,
-   "fileRoot": '/usr/bin/myawesomefolder',
-   "pages": [
-      {
-         "pageId": "1234567890",
-         "file": "README.md",  // this path will be evaluated as fileRoot + file
-         "title": "Optional title in the confluence page, remove to use # h1 from markdown file instead"
+class CustomRenderer extends ConfluenceRenderer {
+
+   constructor(options, config, page) {
+      super(options, config, page);
+   }
+
+   image(href, title, text) {
+      if (href.startsWith("http")) {
+         return `<ac:image ac:width="768px" ac:height="768px"><ri:url ri:value="${href}" /></ac:image>`;
       }
-   ],
-   customRenderer: MyNewAwesomeRenderer,
+      return `<ac:image ac:width="768px" ac:height="768px"><ri:attachment ri:filename="${href}" /></ac:image>`;
+   }
 }
 
-await cosmere(config);
+const config = {
+    baseUrl: "<your base url including /rest/api>",
+    user: "<your username>",
+    pass: "<your password>",
+    cachePath: "build",
+    prefix: "This document is automatically generated. Please don't edit it directly!",
+    insecure: false,
+    force: false,
+    fileRoot: "/usr/bin/myawesomefolder",
+    pages: [
+        {
+            pageId: "1234567890",
+            file: "README.md", // this path will be evaluated as fileRoot + file
+            title: "Optional title in the confluence page, remove to use # h1 from markdown file instead",
+        },
+    ],
+    customRenderer: CustomRenderer,
+};
 
+await cosmere(config);
 ```
 
 ## Troubleshooting

@@ -18,7 +18,9 @@ export class ObjectConfigLoader {
         const hasUserPass = !!(objectConfig.user && objectConfig.pass);
         const hasPersonalAccessToken = !!objectConfig.personalAccessToken;
         if (!hasPersonalAccessToken && !hasUserPass) {
-            throw new Error("Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.");
+            throw new Error(
+                "Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.",
+            );
         }
         return {
             user: objectConfig.user,
@@ -37,7 +39,9 @@ export class ObjectConfigLoader {
             return `Basic ${encodedBasicToken}`;
         }
 
-        throw new Error("Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.");
+        throw new Error(
+            "Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.",
+        );
     }
 
     private static normalizeFilePaths(objectConfig: ObjectConfig): ObjectConfig {
@@ -60,7 +64,6 @@ export class ObjectConfigLoader {
             configPath: config.fileRoot || process.cwd(),
             customRenderer: config.customRenderer,
             authorizationToken: authorizationToken,
-        }
+        };
     }
-
 }

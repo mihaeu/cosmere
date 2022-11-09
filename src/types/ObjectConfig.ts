@@ -8,5 +8,5 @@ export type ObjectConfig = BaseConfig & {
     personalAccessToken?: string;
     insecure: boolean;
     force: boolean;
-    customRenderer?: RendererConstructor,
+    customRenderer?: RendererConstructor;
 };
