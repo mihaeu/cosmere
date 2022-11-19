@@ -118,17 +118,16 @@ import cosmere from "cosmere/dist/src/lib";
 import ConfluenceRenderer from "cosmere/dist/src/ConfluenceRenderer";
 
 class CustomRenderer extends ConfluenceRenderer {
+    constructor(options, config, page) {
+        super(options, config, page);
+    }
 
-   constructor(options, config, page) {
-      super(options, config, page);
-   }
-
-   image(href, title, text) {
-      if (href.startsWith("http")) {
-         return `<ac:image ac:width="768px" ac:height="768px"><ri:url ri:value="${href}" /></ac:image>`;
-      }
-      return `<ac:image ac:width="768px" ac:height="768px"><ri:attachment ri:filename="${href}" /></ac:image>`;
-   }
+    image(href, title, text) {
+        if (href.startsWith("http")) {
+            return `<ac:image ac:width="768px" ac:height="768px"><ri:url ri:value="${href}" /></ac:image>`;
+        }
+        return `<ac:image ac:width="768px" ac:height="768px"><ri:attachment ri:filename="${href}" /></ac:image>`;
+    }
 }
 
 const config = {

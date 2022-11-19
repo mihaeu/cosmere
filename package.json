@@ -1,6 +1,6 @@
 {
     "name": "cosmere",
-    "version": "0.16.0",
+    "version": "0.17.0",
     "description": "Sync your markdown files to confluence.",
     "main": "dist/index.js",
     "bin": {
