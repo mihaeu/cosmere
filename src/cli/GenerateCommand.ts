@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-export default function(configPath: string | null) {
+export default function (configPath: string | null) {
     fs.writeFileSync(
         configPath || path.join("cosmere.json")!,
         `{
