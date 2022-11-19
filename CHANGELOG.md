@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Added capability of running Cosmere as a script library.
 -   Added support for custom renderers.
+-   Added `cleanupLocalAttachmentFiles` option.
+
 
 ## [0.16.0] - 2022-07-12
 

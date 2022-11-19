@@ -3,6 +3,7 @@
     "personalAccessToken": "unbearable",
     "prefix": "This document is automatically generated. Please don't edit it directly!",
     "cachePath": "cache/",
+    "cleanupLocalAttachmentFiles": false,
     "pages": [
         {
             "pageId": "123456789",

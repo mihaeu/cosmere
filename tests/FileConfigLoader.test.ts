@@ -29,5 +29,6 @@ describe("FileConfigLoader", () => {
             },
         ],
         prefix: "This document is automatically generated. Please don't edit it directly!",
+        cleanupLocalAttachmentFiles: false,
     };
 });

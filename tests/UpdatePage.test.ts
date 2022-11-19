@@ -18,6 +18,7 @@ describe("UpdatePage", () => {
             pages: [],
             configPath: "...",
             authorizationToken: "Bearer unbearable",
+            cleanupLocalAttachmentFiles: false,
         };
         const confluenceApi = new ConfluenceAPI("", "Bearer unbearable", false);
         confluenceApi.getAttachments = jest.fn().mockResolvedValueOnce({
@@ -55,6 +56,7 @@ describe("UpdatePage", () => {
             configPath: "...",
             authorizationToken: "Bearer unbearable",
             customRenderer: customRendererFunction,
+            cleanupLocalAttachmentFiles: false,
         };
         const confluenceApi = new ConfluenceAPI("", "Bearer unbearable", false);
         confluenceApi.getAttachments = jest.fn().mockResolvedValueOnce({

@@ -46,6 +46,7 @@ which produces:
     "baseUrl": "<your base url including /rest/api>",
     "user": "<your username>",
     "pass": "<your password>",
+    "cleanupLocalAttachmentFiles": false,
     "personalAccessToken": "<your personal access token (can be set instead of username/password)>",
     "cachePath": "build",
     "prefix": "This document is automatically generated. Please don't edit it directly!",
@@ -58,6 +59,8 @@ which produces:
     ]
 }
 ```
+
+If `cleanupLocalAttachmentFiles` is set to true, we disable caching attachment files locally.
 
 ### Continuous Integration
 
@@ -136,6 +139,7 @@ const config = {
     prefix: "This document is automatically generated. Please don't edit it directly!",
     insecure: false,
     force: false,
+    cleanupLocalAttachmentFiles: true,
     fileRoot: "/usr/bin/myawesomefolder",
     pages: [
         {
@@ -149,6 +153,8 @@ const config = {
 
 await cosmere(config);
 ```
+
+If `cleanupLocalAttachmentFiles` is set to true, we disable caching attachment files locally.
 
 ## Troubleshooting
 

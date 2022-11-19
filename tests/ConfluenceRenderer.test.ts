@@ -11,6 +11,7 @@ describe("ConfluenceRenderer", () => {
         pages: [currentPage, { pageId: "456", title: "", file: "/tmp/other.md" }],
         configPath: "",
         authorizationToken: "",
+        cleanupLocalAttachmentFiles: false,
     };
 
     beforeEach(() => {

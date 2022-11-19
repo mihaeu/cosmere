@@ -20,7 +20,7 @@ export class FileConfigLoader {
         return FileConfigLoader.createConfig(fileConfig, FileConfigLoader.createAuthorizationToken(authOptions));
     }
 
-    private static readConfigFromFile(configPath: string | null, authorizationToken?: string): FileConfig {
+    private static readConfigFromFile(configPath: string | null): FileConfig {
         configPath = path.resolve(configPath || path.join("cosmere.json"));
         if (!fs.existsSync(configPath!)) {
             signale.fatal(`File "${configPath}" not found!`);
@@ -110,6 +110,7 @@ export class FileConfigLoader {
             pages: fileConfig.pages,
             configPath: fileConfig.configPath,
             authorizationToken: authorizationToken,
+            cleanupLocalAttachmentFiles: fileConfig.cleanupLocalAttachmentFiles,
         };
     }
 }
