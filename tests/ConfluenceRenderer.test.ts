@@ -89,7 +89,7 @@ describe("ConfluenceRenderer", () => {
                 "false" +
                 "</ac:parameter>" +
                 "<ac:plain-text-body>" +
-                "<![CDATA[    More elaborate text `with other things like monospace`]]>" +
+                "<![CDATA[    More elaborate text `with other things like monospace`\n  ]]>" +
                 "</ac:plain-text-body>" +
                 "</ac:structured-macro>" +
                 "\n" +

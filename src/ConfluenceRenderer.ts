@@ -1,12 +1,13 @@
-import marked, { Renderer } from "marked";
+import { marked, Renderer } from "marked";
 import { Config } from "./types/Config";
 import { Page } from "./types/Page";
 import * as path from "path";
+import MarkedOptions = marked.MarkedOptions;
 
-export default class ConfluenceRenderer extends Renderer {
+export default class ConfluenceRenderer extends Renderer<string> {
     private readonly config: Config;
     private readonly page: Page;
-    readonly options: marked.MarkedOptions;
+    readonly options: MarkedOptions;
 
     constructor(options: marked.MarkedOptions, config: Config, page: Page) {
         super(options);
@@ -81,7 +82,7 @@ export default class ConfluenceRenderer extends Renderer {
 
     private resolveLinks(href: string): string {
         const absolutePath = path.resolve(path.dirname(this.page.file), href);
-        const match = this.config.pages.find(page => page.file === absolutePath);
+        const match = this.config.pages.find((page) => page.file === absolutePath);
         if (match) {
             href = `${this.config.baseUrl.replace("rest/api", "").replace(/\/$/, "")}/pages/viewpage.action?pageId=${
                 match.pageId

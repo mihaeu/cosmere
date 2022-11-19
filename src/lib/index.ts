@@ -10,7 +10,7 @@ const DEFAULTS = {
     fileRoot: process.cwd(),
 };
 
-export default async function(configOptions: ObjectConfig) {
+export default async function (configOptions: ObjectConfig) {
     const config: Config = await ObjectConfigLoader.load(Object.assign({}, DEFAULTS, configOptions));
     const confluenceAPI = new ConfluenceAPI(config.baseUrl, config.authorizationToken, configOptions.insecure);
 
