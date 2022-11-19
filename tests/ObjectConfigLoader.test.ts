@@ -15,6 +15,7 @@ describe("ObjectConfigLoader", () => {
         ],
         insecure: false,
         force: false,
+        cleanupLocalAttachmentFiles: false,
     };
 
     const objectConfigurationWithUserPass = {
@@ -32,6 +33,7 @@ describe("ObjectConfigLoader", () => {
         ],
         insecure: false,
         force: false,
+        cleanupLocalAttachmentFiles: false,
     };
 
     it("should create bearer token from personal access token", async () => {
@@ -61,5 +63,6 @@ describe("ObjectConfigLoader", () => {
         ],
         prefix: "This document is automatically generated. Please don't edit it directly!",
         customRenderer: undefined,
+        cleanupLocalAttachmentFiles: false,
     };
 });

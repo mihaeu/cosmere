@@ -64,6 +64,7 @@ export class ObjectConfigLoader {
             configPath: config.fileRoot || process.cwd(),
             customRenderer: config.customRenderer,
             authorizationToken: authorizationToken,
+            cleanupLocalAttachmentFiles: config.cleanupLocalAttachmentFiles,
         };
     }
 }
