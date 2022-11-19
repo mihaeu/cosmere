@@ -4,6 +4,6 @@ export type BaseConfig = {
     baseUrl: string;
     cachePath: string;
     prefix: string;
-    cleanupLocalAttachmentFiles: boolean,
+    cleanupLocalAttachmentFiles: boolean;
     pages: Page[];
 };
