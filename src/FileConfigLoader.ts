@@ -110,7 +110,6 @@ export class FileConfigLoader {
             pages: fileConfig.pages,
             configPath: fileConfig.configPath,
             authorizationToken: authorizationToken,
-            cleanupLocalAttachmentFiles: fileConfig.cleanupLocalAttachmentFiles,
         };
     }
 }

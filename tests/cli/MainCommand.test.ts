@@ -1,3 +1,5 @@
+import { Config } from "../../src/types/Config";
+
 jest.mock("../../src/UpdatePage");
 jest.mock("../../src/FileConfigLoader");
 jest.mock("../../src/api/ConfluenceAPI");
@@ -26,11 +28,10 @@ describe("MainCommand", () => {
                 file: generateRandomString(),
             });
         }
-        const config = {
+        const config: Config = {
             baseUrl: "baseUrl",
             cachePath: ".cache",
             prefix: "prefix",
-            cleanupLocalAttachmentFiles: false,
             pages: randomPages,
             configPath: "path",
             authorizationToken: "token",

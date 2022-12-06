@@ -1,4 +1,5 @@
 import { FileConfigLoader } from "../src/FileConfigLoader";
+import { BaseConfig } from "../src/types/BaseConfig";
 
 describe("FileConfigLoader", () => {
     it("should create bearer token from personal access token", async () => {
@@ -19,7 +20,7 @@ describe("FileConfigLoader", () => {
         });
     });
 
-    const irrelevantConfigFields = {
+    const irrelevantConfigFields: BaseConfig = {
         baseUrl: "https://confluence.custom.host/rest/api",
         cachePath: "cache/",
         pages: [
@@ -29,6 +30,5 @@ describe("FileConfigLoader", () => {
             },
         ],
         prefix: "This document is automatically generated. Please don't edit it directly!",
-        cleanupLocalAttachmentFiles: false,
     };
 });

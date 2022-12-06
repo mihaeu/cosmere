@@ -13,12 +13,11 @@ describe("UpdatePage", () => {
         };
         const config: Config = {
             baseUrl: "string",
-            cachePath: "string",
+            cachePath: "build",
             prefix: "string",
             pages: [],
             configPath: "...",
             authorizationToken: "Bearer unbearable",
-            cleanupLocalAttachmentFiles: false,
         };
         const confluenceApi = new ConfluenceAPI("", "Bearer unbearable", false);
         confluenceApi.getAttachments = jest.fn().mockResolvedValueOnce({
@@ -50,13 +49,12 @@ describe("UpdatePage", () => {
         const customRendererFunction = jest.fn();
         const config: Config = {
             baseUrl: "string",
-            cachePath: "string",
+            cachePath: "build",
             prefix: "string",
             pages: [],
             configPath: "...",
             authorizationToken: "Bearer unbearable",
             customRenderer: customRendererFunction,
-            cleanupLocalAttachmentFiles: false,
         };
         const confluenceApi = new ConfluenceAPI("", "Bearer unbearable", false);
         confluenceApi.getAttachments = jest.fn().mockResolvedValueOnce({
