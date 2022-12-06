@@ -123,7 +123,13 @@ async function deleteOutOfDateAttachments(
     }
 }
 
-async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: string, confluenceAPI: ConfluenceAPI) {
+async function updateAttachments(
+    mdWikiData: string,
+    pageData: Page,
+    cachePath: string,
+    confluenceAPI: ConfluenceAPI,
+    force: boolean,
+) {
     const remoteAttachments = (await confluenceAPI.getAttachments(pageData.pageId)).results;
     let attachments = extractAttachmentsFromPage(pageData, mdWikiData).map((attachment) =>
         mapLocalToRemoteAttachments(attachment, remoteAttachments),
@@ -133,13 +139,13 @@ async function updateAttachments(mdWikiData: string, pageData: Page, cachePath: 
     }
 
     await deleteOutOfDateAttachments(attachments, remoteAttachments, confluenceAPI);
-    for (const attachment of attachments.filter((attachment) => !attachment.remoteAttachmentId)) {
+    for (const attachment of attachments.filter((attachment) => force || !attachment.remoteAttachmentId)) {
         const temporaryAttachmentPath = path.join(cachePath, attachment.remoteFileName);
         fs.copyFileSync(attachment.originalAbsolutePath, temporaryAttachmentPath);
 
         signale.await(`Uploading attachment "${attachment.remoteFileName}" for "${pageData.title}" ...`);
         try {
-            await confluenceAPI.uploadAttachment(attachment.remoteFileName, pageData.pageId);
+            await confluenceAPI.uploadAttachment(temporaryAttachmentPath, pageData.pageId);
         } finally {
             fs.unlinkSync(temporaryAttachmentPath);
         }
@@ -207,7 +213,7 @@ export async function updatePage(confluenceAPI: ConfluenceAPI, pageData: Page, c
         return;
     }
 
-    mdWikiData = await updateAttachments(mdWikiData, pageData, cachePath, confluenceAPI);
+    mdWikiData = await updateAttachments(mdWikiData, pageData, cachePath, confluenceAPI, force);
     signale.await(`Fetch current page for "${pageData.title}" ...`);
     const confluencePage = (await confluenceAPI.currentPage(pageData.pageId)).data;
     if (!force && !isRemoteUpdateRequired(mdWikiData, confluencePage)) {
