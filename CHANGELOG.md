@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Local copies of attachment are no longer stored, because caching is done by comparing filename and size instead
+-   `--force` now also forces re-upload of attachments
 
 ## [0.16.0] - 2022-07-12
 

@@ -4,6 +4,7 @@ import signale from "signale";
 import { GetAttachmentsResult } from "./GetAttachmentsResult";
 import { Attachment } from "./Attachment";
 import { Agent } from "https";
+import FormData from "form-data";
 
 export class ConfluenceAPI {
     private readonly baseUrl: string;
@@ -46,16 +47,21 @@ export class ConfluenceAPI {
 
     async uploadAttachment(filename: string, pageId: string) {
         try {
-            await require("axios-file")({
-                url: `${this.baseUrl}/content/${pageId}/child/attachment`,
-                method: "post",
+            let form = new FormData();
+            const readStream = fs.createReadStream(filename);
+            form.append("file", readStream);
+            await axios.request({
+                url: `${this.baseUrl}/content/${pageId}/child/attachment?allowDuplicated=true`,
+                method: "POST",
                 headers: {
                     "X-Atlassian-Token": "nocheck",
                     ...this.authHeader,
+                    ...form.getHeaders(),
                 },
                 httpsAgent: this.agent,
+                maxContentLength: 1024 * 1024 * 100,
                 data: {
-                    file: fs.createReadStream(filename),
+                    file: readStream,
                 },
             });
         } catch (e) {
