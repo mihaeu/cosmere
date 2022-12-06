@@ -1,7 +1,9 @@
 import { ObjectConfigLoader } from "../src/ObjectConfigLoader";
+import { ObjectConfig } from "../src/types/ObjectConfig";
+import { BaseConfig } from "../src/types/BaseConfig";
 
 describe("ObjectConfigLoader", () => {
-    const objectConfigurationWithPersonalAccessToken = {
+    const objectConfigurationWithPersonalAccessToken: ObjectConfig = {
         baseUrl: "https://confluence.custom.host/rest/api",
         personalAccessToken: "unbearable",
         prefix: "This document is automatically generated. Please don't edit it directly!",
@@ -15,10 +17,9 @@ describe("ObjectConfigLoader", () => {
         ],
         insecure: false,
         force: false,
-        cleanupLocalAttachmentFiles: false,
     };
 
-    const objectConfigurationWithUserPass = {
+    const objectConfigurationWithUserPass: ObjectConfig = {
         baseUrl: "https://confluence.custom.host/rest/api",
         user: "user",
         pass: "pass",
@@ -33,7 +34,6 @@ describe("ObjectConfigLoader", () => {
         ],
         insecure: false,
         force: false,
-        cleanupLocalAttachmentFiles: false,
     };
 
     it("should create bearer token from personal access token", async () => {
@@ -52,7 +52,7 @@ describe("ObjectConfigLoader", () => {
         });
     });
 
-    const irrelevantConfigFields = {
+    const irrelevantConfigFields: BaseConfig & Pick<ObjectConfig, "customRenderer"> = {
         baseUrl: "https://confluence.custom.host/rest/api",
         cachePath: "cache/",
         pages: [
@@ -63,6 +63,5 @@ describe("ObjectConfigLoader", () => {
         ],
         prefix: "This document is automatically generated. Please don't edit it directly!",
         customRenderer: undefined,
-        cleanupLocalAttachmentFiles: false,
     };
 });
