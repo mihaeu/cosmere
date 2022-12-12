@@ -9,7 +9,7 @@ import { Picture } from "./Picture";
 import { marked } from "marked";
 import { Attachment } from "./api/Attachment";
 
-type ConfluencePage = {
+export type ConfluencePage = {
     title: string;
     body: {
         storage: {
