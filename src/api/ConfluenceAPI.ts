@@ -5,6 +5,7 @@ import { GetAttachmentsResult } from "./GetAttachmentsResult";
 import { Attachment } from "./Attachment";
 import { Agent } from "https";
 import FormData from "form-data";
+import { ConfluencePage } from "../UpdatePage";
 
 export class ConfluenceAPI {
     private readonly baseUrl: string;
@@ -23,7 +24,7 @@ export class ConfluenceAPI {
         });
     }
 
-    async updateConfluencePage(pageId: string, newPage: any) {
+    async updateConfluencePage(pageId: string, newPage: ConfluencePage) {
         try {
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, this.config());
         } catch (e) {
