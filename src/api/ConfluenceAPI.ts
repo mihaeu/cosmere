@@ -27,7 +27,8 @@ export class ConfluenceAPI {
     async updateConfluencePage(pageId: string, newPage: ConfluencePage) {
         try {
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, this.config());
-        } catch (e) {
+        } catch (e: any) {
+            signale.error(e?.response?.data?.message ?? e);
             signale.await(`First attempt failed, retrying ...`);
             await axios.put(`${this.baseUrl}/content/${pageId}`, newPage, this.config());
         }

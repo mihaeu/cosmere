@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1] - 2023-01-09
+
+### Fixed
+
+-   Escape XML characters in image href due to Confluence API validation errors 
+
 ## [0.17.0] - 2022-11-08
 
 ### Added
