@@ -138,6 +138,12 @@ describe("ConfluenceRenderer", () => {
         );
     });
 
+    it("renders links to websites and converts XML characters", () => {
+        expect(confluenceRenderer.link("http://example.com?test=<>&'\"", "test", "nothing")).toBe(
+            `<a href="http://example.com?test=&lt;&gt;&amp;&apos;&quot;" title="test">nothing</a>`,
+        );
+    });
+
     it("renders links to other matching markdown files as Confluence links", () => {
         expect(confluenceRenderer.link("./other.md", "", "")).toBe(
             `<a href="https://my-confluence.com/pages/viewpage.action?pageId=456"></a>`,

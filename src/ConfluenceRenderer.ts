@@ -86,7 +86,7 @@ export default class ConfluenceRenderer extends Renderer<string> {
         if (href) {
             href = this.resolveLinks(href);
         }
-        return super.link(href, title, text);
+        return super.link(escapeXmlCharacters(href ?? ""), title, text);
     }
 
     private resolveLinks(href: string): string {
