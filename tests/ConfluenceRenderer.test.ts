@@ -23,9 +23,21 @@ describe("ConfluenceRenderer", () => {
         );
     });
 
+    it("converts local image href to confluence attachment and converts XML characters", () => {
+        expect(confluenceRenderer.image(`example.gif?test=<>&'"`, "title", "text")).toBe(
+            '<ac:image><ri:attachment ri:filename="example.gif?test=&lt;&gt;&amp;&apos;&quot;" /></ac:image>',
+        );
+    });
+
     it("converts remote images to confluence image", () => {
         expect(confluenceRenderer.image("http://example.com/example.gif", "title", "text")).toBe(
             '<ac:image><ri:url ri:value="http://example.com/example.gif" /></ac:image>',
+        );
+    });
+
+    it("converts remote images to confluence image and converts XML characters", () => {
+        expect(confluenceRenderer.image(`http://example.com/example.gif?test=<>&'"`, "title", "text")).toBe(
+            '<ac:image><ri:url ri:value="http://example.com/example.gif?test=&lt;&gt;&amp;&apos;&quot;" /></ac:image>',
         );
     });
 

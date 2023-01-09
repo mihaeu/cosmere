@@ -4,6 +4,15 @@ import { Page } from "./types/Page";
 import * as path from "path";
 import MarkedOptions = marked.MarkedOptions;
 
+const escapeXmlCharacters = (s: string) => {
+    return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+};
+
 export default class ConfluenceRenderer extends Renderer<string> {
     private readonly config: Config;
     private readonly page: Page;
@@ -100,9 +109,9 @@ export default class ConfluenceRenderer extends Renderer<string> {
 
     image(href: string, title: string, text: string) {
         if (href.startsWith("http")) {
-            return `<ac:image><ri:url ri:value="${href}" /></ac:image>`;
+            return `<ac:image><ri:url ri:value="${escapeXmlCharacters(href)}" /></ac:image>`;
         }
-        return `<ac:image><ri:attachment ri:filename="${href}" /></ac:image>`;
+        return `<ac:image><ri:attachment ri:filename="${escapeXmlCharacters(href)}" /></ac:image>`;
     }
 
     private readonly DEFAULT_LANGUAGE_FOR_CODE_BLOCK = "none";
