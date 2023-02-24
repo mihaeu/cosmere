@@ -89,7 +89,7 @@ or add it in front of the command when executing locally (add a space in front o
 cosmere --help
 
 # local installation with yarn
-yarn cosmere --hhelp
+yarn cosmere --help
 
 # local installation with npm
 npm run cosmere --help
