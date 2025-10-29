@@ -71,6 +71,7 @@ CONFLUENCE_PASSWORD=YOUR_PASSWORD
 or
 
 ```ini
+CONFLUENCE_USERNAME=YOUR_USERNAME
 CONFLUENCE_PERSONAL_ACCESS_TOKEN="<your auth token>"
 ```
 
@@ -79,7 +80,7 @@ or add it in front of the command when executing locally (add a space in front o
 ```bash
  CONFLUENCE_USER=YOUR_USERNAME CONFLUENCE_PASSWORD=YOUR_PASSWORD cosmere
  # or
- CONFLUENCE_PERSONAL_ACCESS_TOKEN="<your personal access token>" cosmere
+ CONFLUENCE_USERNAME=YOUR_USERNAME CONFLUENCE_PERSONAL_ACCESS_TOKEN="<your personal access token>" cosmere
 ```
 
 ### Run
