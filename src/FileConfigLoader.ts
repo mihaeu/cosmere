@@ -4,7 +4,6 @@ import { Config } from "./types/Config";
 import * as inquirer from "inquirer";
 import signale from "signale";
 import { FileConfig } from "./types/FileConfig";
-import { Buffer } from "buffer";
 
 type AuthOptions = {
     user?: string;
