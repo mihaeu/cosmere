@@ -1,47 +1,24 @@
 import { Config } from "./types/Config";
 import { ObjectConfig } from "./types/ObjectConfig";
 import path from "path";
-
-type AuthOptions = {
-    user?: string;
-    pass?: string;
-    personalAccessToken?: string;
-};
+import { AuthOptions, createAuthorizationToken, MISSING_AUTH_MESSAGE } from "./auth/createAuthorizationToken";
 
 export class ObjectConfigLoader {
     static async load(objectConfig: ObjectConfig): Promise<Config> {
-        const authOptions = await ObjectConfigLoader.fetchCredentialsFromObject(objectConfig);
-        return ObjectConfigLoader.createConfig(objectConfig, ObjectConfigLoader.createAuthorizationToken(authOptions));
+        const authOptions = ObjectConfigLoader.authOptionsFromObjectConfig(objectConfig);
+        const authorizationToken = createAuthorizationToken(authOptions);
+        if (!authorizationToken) {
+            throw new Error(MISSING_AUTH_MESSAGE);
+        }
+        return ObjectConfigLoader.createConfig(objectConfig, authorizationToken);
     }
 
-    private static async fetchCredentialsFromObject(objectConfig: ObjectConfig): Promise<AuthOptions> {
-        const hasUserPass = !!(objectConfig.user && objectConfig.pass);
-        const hasPersonalAccessToken = !!objectConfig.personalAccessToken;
-        if (!hasPersonalAccessToken && !hasUserPass) {
-            throw new Error(
-                "Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.",
-            );
-        }
+    private static authOptionsFromObjectConfig(objectConfig: ObjectConfig): AuthOptions {
         return {
             user: objectConfig.user,
             pass: objectConfig.pass,
             personalAccessToken: objectConfig.personalAccessToken,
         };
-    }
-
-    private static createAuthorizationToken(authOptions: AuthOptions): string {
-        if (authOptions.personalAccessToken) {
-            return `Bearer ${authOptions.personalAccessToken}`;
-        }
-
-        if (authOptions.user && authOptions.user.length > 0 && authOptions.pass && authOptions.pass.length > 0) {
-            const encodedBasicToken = Buffer.from(`${authOptions.user}:${authOptions.pass}`).toString("base64");
-            return `Basic ${encodedBasicToken}`;
-        }
-
-        throw new Error(
-            "Missing configuration! Config object does not provide a combination of your Confluence username and password or a personal access token.",
-        );
     }
 
     private static normalizeFilePaths(objectConfig: ObjectConfig): ObjectConfig {

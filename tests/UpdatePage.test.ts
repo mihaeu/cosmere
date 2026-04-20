@@ -1,5 +1,6 @@
 jest.mock("../src/api/ConfluenceAPI");
 
+import * as os from "os";
 import { updatePage } from "../src/UpdatePage";
 import { ConfluenceAPI } from "../src/api/ConfluenceAPI";
 import { Page } from "../src/types/Page";
@@ -9,7 +10,7 @@ describe("UpdatePage", () => {
     it("should fail because no title property is found in config", async () => {
         const pageData: Page = {
             pageId: "123456789",
-            file: "/dev/null",
+            file: os.devNull,
         };
         const config: Config = {
             baseUrl: "string",
@@ -43,7 +44,7 @@ describe("UpdatePage", () => {
     it("should call custom renderer", async () => {
         const pageData: Page = {
             pageId: "123456789",
-            file: "/dev/null",
+            file: os.devNull,
             title: "test title",
         };
         const customRendererFunction = jest.fn();

@@ -1,14 +1,15 @@
+import * as path from "path";
 import ConfluenceRenderer from "../src/ConfluenceRenderer";
 import { Config } from "../src/types/Config";
 
 describe("ConfluenceRenderer", () => {
     let confluenceRenderer: ConfluenceRenderer;
-    const currentPage = { pageId: "123", title: "", file: "/tmp/test.md" };
+    const currentPage = { pageId: "123", title: "", file: path.resolve("/tmp/test.md") };
     const config: Config = {
         baseUrl: "https://my-confluence.com/rest/api",
         cachePath: "",
         prefix: "",
-        pages: [currentPage, { pageId: "456", title: "", file: "/tmp/other.md" }],
+        pages: [currentPage, { pageId: "456", title: "", file: path.resolve("/tmp/other.md") }],
         configPath: "",
         authorizationToken: "",
     };

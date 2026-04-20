@@ -1,3 +1,4 @@
+import * as path from "path";
 import { ObjectConfigLoader } from "../src/ObjectConfigLoader";
 import { ObjectConfig } from "../src/types/ObjectConfig";
 import { BaseConfig } from "../src/types/BaseConfig";
@@ -57,7 +58,7 @@ describe("ObjectConfigLoader", () => {
         cachePath: "cache/",
         pages: [
             {
-                file: __dirname + "/README.md",
+                file: path.join(__dirname, "README.md"),
                 pageId: "123456789",
             },
         ],

@@ -4,20 +4,20 @@ import { Config } from "./types/Config";
 import * as inquirer from "inquirer";
 import signale from "signale";
 import { FileConfig } from "./types/FileConfig";
-
-type AuthOptions = {
-    user?: string;
-    pass?: string;
-    personalAccessToken?: string;
-};
+import { AuthOptions, createAuthorizationToken, MISSING_AUTH_MESSAGE } from "./auth/createAuthorizationToken";
 
 export class FileConfigLoader {
     static async load(configPath: string | null): Promise<Config> {
         const fileConfig = FileConfigLoader.readConfigFromFile(configPath);
-        const authOptions = await FileConfigLoader.promptUserAndPassIfNotSet(
+        const authOptions = await FileConfigLoader.promptForMissingCredentials(
             FileConfigLoader.useAuthOptionsFromEnvIfPresent(FileConfigLoader.authOptionsFromFileConfig(fileConfig)),
         );
-        return FileConfigLoader.createConfig(fileConfig, FileConfigLoader.createAuthorizationToken(authOptions));
+        const authorizationToken = createAuthorizationToken(authOptions);
+        if (!authorizationToken) {
+            signale.fatal(MISSING_AUTH_MESSAGE);
+            process.exit(2);
+        }
+        return FileConfigLoader.createConfig(fileConfig, authorizationToken);
     }
 
     private static readConfigFromFile(configPath: string | null): FileConfig {
@@ -40,23 +40,6 @@ export class FileConfigLoader {
         };
     }
 
-    private static createAuthorizationToken(authOptions: AuthOptions): string {
-        if (authOptions.personalAccessToken && authOptions.user && authOptions.user.length > 0 ) {
-                const encodedBasicToken = Buffer.from(`${authOptions.user}:${authOptions.personalAccessToken}`).toString("base64");
-                return `Basic ${encodedBasicToken}`;
-        }
-
-        if (authOptions.user && authOptions.user.length > 0 && authOptions.pass && authOptions.pass.length > 0) {
-            const encodedBasicToken = Buffer.from(`${authOptions.user}:${authOptions.pass}`).toString("base64");
-            return `Basic ${encodedBasicToken}`;
-        }
-
-        signale.fatal(
-            "Missing configuration! You must either provide a combination of your Confluence username and password or username and a personal access token.",
-        );
-        process.exit(2);
-    }
-
     private static useAuthOptionsFromEnvIfPresent(authOptions: AuthOptions): AuthOptions {
         return {
             user: process.env.CONFLUENCE_USERNAME || authOptions.user,
@@ -65,7 +48,11 @@ export class FileConfigLoader {
         };
     }
 
-    private static async promptUserAndPassIfNotSet(authOptions: AuthOptions): Promise<AuthOptions> {
+    private static async promptForMissingCredentials(authOptions: AuthOptions): Promise<AuthOptions> {
+        if (authOptions.personalAccessToken && authOptions.personalAccessToken.length > 0) {
+            return authOptions;
+        }
+
         const prompts = [];
         if (!authOptions.user) {
             prompts.push({
@@ -75,14 +62,12 @@ export class FileConfigLoader {
             });
         }
 
-        if (!(authOptions.personalAccessToken && authOptions.personalAccessToken.length > 0)) {
-            if (!authOptions.pass) {
-                prompts.push({
-                    type: "password",
-                    name: "pass",
-                    message: "Your Confluence password:",
-                });
-            }
+        if (!authOptions.pass) {
+            prompts.push({
+                type: "password",
+                name: "pass",
+                message: "Your Confluence password or API token:",
+            });
         }
 
         const answers = await inquirer.prompt(prompts);

@@ -21,14 +21,15 @@ Cosmere has **two entry points that share the same core pipeline** but differ in
 
 Both loaders converge on a `Config` (`src/types/Config.ts`) consumed by `updatePage` in `src/UpdatePage.ts`, which is the single place all sync logic lives.
 
-### Important asymmetry between loaders
+### Authorization token construction
 
-Auth token construction differs between the two paths and this is load-bearing for which Confluence APIs work:
+Both loaders delegate to `createAuthorizationToken` in `src/auth/createAuthorizationToken.ts`:
 
-- `FileConfigLoader.createAuthorizationToken` always emits `Basic <base64(user:secret)>`, even when a personal access token is provided (it base64-encodes `user:PAT`).
-- `ObjectConfigLoader.createAuthorizationToken` emits `Bearer <PAT>` when a PAT is provided, otherwise `Basic <base64(user:pass)>`.
+- `personalAccessToken` → `Bearer <PAT>` (Data Center / Server PATs; Cloud does not accept these).
+- `user` + `pass` → `Basic <base64(user:pass)>` (covers both DC password login and Cloud email + API token — the wire format is identical).
+- Neither → returns `null`; callers emit a fatal error (CLI) or throw (library).
 
-If you touch auth, preserve this split or update both.
+If you touch auth, update the shared helper rather than either loader in isolation.
 
 ### `updatePage` pipeline (src/UpdatePage.ts)
 

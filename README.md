@@ -44,9 +44,9 @@ which produces:
 ```json
 {
     "baseUrl": "<your base url including /rest/api>",
-    "user": "<your username>",
-    "pass": "<your password>",
-    "personalAccessToken": "<your personal access token (can be set instead of username/password)>",
+    "user": "<your username or Atlassian account email>",
+    "pass": "<your password or Cloud API token>",
+    "personalAccessToken": "<Data Center/Server personal access token — use instead of user/pass>",
     "cachePath": "build",
     "prefix": "This document is automatically generated. Please don't edit it directly!",
     "pages": [
@@ -58,6 +58,18 @@ which produces:
     ]
 }
 ```
+
+#### Picking an authentication scheme
+
+| Confluence flavor                         | Fields to set                                                     | Header emitted           |
+| ----------------------------------------- | ----------------------------------------------------------------- | ------------------------ |
+| Data Center / Server, password login      | `user` + `pass`                                                   | `Basic base64(user:pass)` |
+| Cloud (`*.atlassian.net`)                 | `user` = account email, `pass` = [API token][atlassian-api-token] | `Basic base64(email:token)` |
+| Data Center / Server, personal access token | `personalAccessToken`                                           | `Bearer <PAT>`           |
+
+Cloud does not accept Bearer PATs, and Data Center PATs are Bearer-only — do not combine `personalAccessToken` with `user`. If both `pass` and `personalAccessToken` are set, the PAT wins.
+
+[atlassian-api-token]: https://id.atlassian.com/manage/api-tokens
 
 ### Continuous Integration
 
