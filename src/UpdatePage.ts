@@ -51,8 +51,19 @@ function isRemoteUpdateRequired(newContent: string, confluencePage: any): boolea
     return local !== remote;
 }
 
-function extractAttachmentsFromPage(pageData: Page, newContent: string): Picture[] {
-    return (newContent.match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
+function stripCdataSections(s: string): string {
+    return s.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+}
+
+export function rewriteAttachmentFilenames(mdWikiData: string): string {
+    return mdWikiData.replace(
+        /<!\[CDATA\[[\s\S]*?\]\]>|<ri:attachment ri:filename=".+?"/g,
+        (match: string) => (match.startsWith("<![CDATA[") ? match : match.replace(/(\.\.|\/)/g, "_")),
+    );
+}
+
+export function extractAttachmentsFromPage(pageData: Page, newContent: string): Picture[] {
+    return (stripCdataSections(newContent).match(/<ri:attachment ri:filename="(.+?)" *\/>/g) || [])
         .map((attachment: string) => attachment.replace(/.*"(.+)".*/, "$1"))
         .filter((attachment: string) => !attachment.startsWith("http"))
         .filter((attachment: string) => {
@@ -151,8 +162,7 @@ async function updateAttachments(
         }
     }
 
-    mdWikiData = mdWikiData.replace(/<ri:attachment ri:filename=".+?"/g, (s: string) => s.replace(/(\.\.|\/)/g, "_"));
-    return mdWikiData;
+    return rewriteAttachmentFilenames(mdWikiData);
 }
 
 function increaseVersionNumber(versionNumber: string) {

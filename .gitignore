@@ -44,3 +44,6 @@ tags
 dist
 .idea
 .claude
+
+cosmere.json
+cosmere_cache

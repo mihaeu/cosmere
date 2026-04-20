@@ -6,9 +6,9 @@ export default function (configPath: string | null) {
         configPath || path.join("cosmere.json")!,
         `{
   "baseUrl": "<your base url including /rest/api>",
-  "user": "<your username>",
-  "pass": "<your password>",
-  "personalAccessToken": "<your personal access token (can be set instead of username/password)>",
+  "user": "<your username or Atlassian account email>",
+  "pass": "<your password or Cloud API token>",
+  "personalAccessToken": "<Data Center/Server personal access token — use instead of user/pass>",
   "cachePath": "build",
   "prefix": "This document is automatically generated. Please don't edit it directly!",
   "pages": [
