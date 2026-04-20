@@ -7,10 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.17.3] - 2026-04-20
+## [0.18.0] - 2026-04-20
 
 ### Fixed
 
+-   `<ri:attachment>` literals appearing inside fenced code blocks (e.g. in this project's own README) no longer trigger spurious "Attachment not found" errors, and their filenames are no longer rewritten.
+-   `FileConfigLoader` emits `Bearer <PAT>` again when only a personal access token is configured. The previous behaviour of Basic-encoding `user:PAT` was not a valid scheme for either Confluence Cloud or Data Center.
+-   `FileConfigLoader` no longer prompts for a username when a personal access token is already provided.
+-   Test suite now passes on Windows (previously relied on POSIX paths like `/dev/null`, `/tmp/...` and `/` separators).
+
+### Changed
+
+-   Auth token construction is now shared between `FileConfigLoader` and `ObjectConfigLoader` via `src/auth/createAuthorizationToken.ts`; both loaders behave identically for the same credential inputs.
+-   `cosmere generate-config` placeholders now distinguish Cloud API tokens from Data Center personal access tokens.
 -   Updated dependencies
 
 ## [0.17.2] - 2023-01-09
